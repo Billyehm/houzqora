@@ -1,0 +1,147 @@
+<div id="hq" data-palette="brown" style="font-family:'Plus Jakarta Sans',Inter,system-ui,sans-serif;box-sizing:border-box;max-width:100%;overflow:hidden;border-radius:18px;border:1px solid var(--ash);background:var(--bg);color:var(--text);">
+<style>
+#hq{--p:#33241A;--p2:#5C4633;--acc:#C6A15B;--bg:#F8F4EE;--ash:#E9E2D8;--card:#FFFFFF;--mut:#6B6259;--text:#221A14}
+#hq *{box-sizing:border-box}
+#hq[data-palette="turquoise"]{--p:#083B3A;--p2:#0E7C7B;--acc:#E9B44C;--bg:#F1F7F6;--ash:#DDEBE8;--card:#FFFFFF;--mut:#55696A}
+#hq[data-palette="velvet"]{--p:#5E1220;--p2:#7B1E2E;--acc:#C89B5A;--bg:#F9F3F1;--ash:#EADDD9;--card:#FFFFFF;--mut:#6E5A5E}
+#hq[data-palette="strawberry"]{--p:#1E1E24;--p2:#2E2E36;--acc:#E63B4E;--bg:#FFF7F6;--ash:#F0DDDC;--card:#FFFFFF;--mut:#6A6464}
+#hq .wrap{padding:18px}
+#hq .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+#hq .logo{font-weight:800;letter-spacing:.12em;font-size:18px}
+#hq .logo span{color:var(--p2)}
+#hq nav{display:flex;gap:14px;font-size:13px;color:var(--mut);flex-wrap:wrap}
+#hq .btn{background:var(--p);color:#fff;border:0;padding:11px 16px;border-radius:999px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+#hq .btn:active{transform:translateY(2px) scale(.98);box-shadow:0 0 0 rgba(0,0,0,0)}
+#hq .btn2{background:transparent;color:var(--p);border:1px solid var(--ash);padding:11px 16px;border-radius:999px;font-weight:700;cursor:pointer}
+#hq .btn2:active{transform:translateY(1px) scale(.98)}
+#hq .pal{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0;background:var(--card);border:1px solid var(--ash);padding:10px 12px;border-radius:12px;align-items:center}
+#hq .pal b{font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+#hq .pal button{border:1px solid var(--ash);background:var(--bg);padding:7px 11px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600}
+#hq .pal button.on{background:var(--p);color:#fff;border-color:var(--p)}
+#hq .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;margin-top:16px}
+@media(max-width:640px){#hq .hero{grid-template-columns:1fr}}
+#hq h1{font-size:38px;line-height:1.05;margin:10px 0;letter-spacing:-.02em}
+#hq h1 em{font-style:normal;color:var(--p2);border-bottom:3px solid var(--acc)}
+#hq p{color:var(--mut);line-height:1.55;font-size:15px}
+#hq .heroimg{border-radius:16px;overflow:hidden;position:relative;min-height:260px;background:#ddd}
+#hq .heroimg img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s}
+#hq .heroimg:hover img{transform:scale(1.04)}
+#hq .badge{position:absolute;left:12px;top:12px;background:#fff;color:#111;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:700;display:flex;gap:7px;align-items:center}
+#hq .dot{width:8px;height:8px;border-radius:50%;background:#1F9D55;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,157,85,.4)}70%{box-shadow:0 0 0 8px rgba(31,157,85,0)}100%{box-shadow:0 0 0 0 rgba(31,157,85,0)}}
+#hq .search{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;background:var(--card);border:1px solid var(--ash);padding:10px;border-radius:14px;margin-top:16px}
+@media(max-width:640px){#hq .search{grid-template-columns:1fr 1fr}}
+#hq .search label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);font-weight:700}
+#hq .search select,#hq .search input{width:100%;border:0;background:transparent;font-size:14px;font-weight:600;outline:none;padding:4px 0}
+#hq .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+@media(max-width:640px){#hq .grid{grid-template-columns:1fr}}
+#hq .card{background:var(--card);border:1px solid var(--ash);border-radius:16px;overflow:hidden;cursor:pointer;animation:rise .6s both;transition:transform .25s,box-shadow .25s}
+#hq .card:nth-child(2){animation-delay:.12s}#hq .card:nth-child(3){animation-delay:.24s}
+#hq .card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(0,0,0,.10)}
+#hq .card.sel{outline:2px solid var(--acc);outline-offset:2px}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+#hq .card img{width:100%;height:170px;object-fit:cover;display:block;transition:transform .7s}
+#hq .card:hover img{transform:scale(1.05)}
+#hq .cardbody{padding:14px}
+#hq .price{font-size:20px;font-weight:800}
+#hq .price small{font-size:13px;color:var(--mut);font-weight:600}
+#hq .meta{font-size:13px;color:var(--mut);margin-top:6px}
+#hq .detail{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:16px;background:var(--p);color:#fff;border-radius:16px;padding:18px}
+@media(max-width:640px){#hq .detail{grid-template-columns:1fr}}
+#hq .detail p{color:rgba(255,255,255,.78)}
+#hq .rows{background:#fff;color:#222;border-radius:12px;padding:14px}
+#hq .row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #eee;font-size:14px}
+#hq .row:last-child{border:0;font-weight:800}
+#hq .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+@media(max-width:640px){#hq .steps{grid-template-columns:1fr 1fr}}
+#hq .step{background:var(--card);border:1px solid var(--ash);border-radius:14px;padding:14px}
+#hq .num{width:28px;height:28px;border-radius:50%;background:var(--acc);color:#111;display:grid;place-items:center;font-weight:800;font-size:13px}
+#hq .line{height:3px;background:var(--ash);border-radius:99px;overflow:hidden;margin:16px 0 4px}
+#hq .line i{display:block;height:100%;width:0;background:var(--acc);animation:draw 1.6s .3s forwards}
+@keyframes draw{to{width:100%}}
+#hq .note{font-size:12px;color:var(--mut);margin-top:10px}
+</style>
+<div class="wrap">
+<div class="top"><div class="logo">HOUZ<span>QORA</span></div><nav><span>Properties</span><span>How it works</span><span>About</span><span>Contact</span></nav><button class="btn" onclick="document.getElementById('hq-grid').scrollIntoView({behavior:'smooth'})">Browse properties</button></div>
+
+<div class="pal"><b>Try a palette</b>
+<button data-pal="brown" class="on">Brown, ash and gold</button>
+<button data-pal="turquoise">Turquoise</button>
+<button data-pal="velvet">Velvet red</button>
+<button data-pal="strawberry">Strawberry red</button>
+<span id="hq-palname" style="font-size:12px;color:var(--mut);font-weight:700">Current: Brown, ash and gold</span></div>
+
+<div class="hero"><div>
+<div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--p2)">Netherlands rentals &middot; Amsterdam &middot; Rotterdam &middot; Utrecht</div>
+<h1>Find a place you will be <em>proud</em> to call home.</h1>
+<p>Explore verified rental homes, pay the inspection fee securely online, and get clear next steps by email. No hidden charges. Paying the fee does not reserve the home.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="btn">Explore available homes</button><button class="btn2">How it works</button></div>
+<p style="font-size:13px;margin-top:12px">Verified listings &nbsp;&bull;&nbsp; Clear fees &nbsp;&bull;&nbsp; Inspection first, decision second</p>
+</div>
+<div class="heroimg"><img src="https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1000&q=80&auto=format&fit=crop" alt="Amsterdam canal houses"><div class="badge"><span class="dot"></span> Available now in Amsterdam</div></div></div>
+
+<div class="search"><div><label>Location</label><select><option>Amsterdam</option><option>Rotterdam</option><option>Utrecht</option><option>The Hague</option></select></div><div><label>Type</label><select><option>Apartment</option><option>Studio</option><option>Terraced house</option><option>Maisonette</option></select></div><div><label>Bedrooms</label><select><option>2 bedrooms</option><option>1 bedroom</option><option>3 bedrooms</option></select></div><button class="btn">Search</button></div>
+
+<div class="grid" id="hq-grid">
+<div class="card sel" data-i="0"><img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=900&q=80&auto=format&fit=crop" alt="Jordaan apartment interior"><div class="cardbody"><div class="price">&euro;2,450 <small>/ month</small></div><b>Modern 2-bed apartment, Jordaan</b><div class="meta">Amsterdam &middot; 2 bed &middot; 1 bath &middot; 68 m&sup2;</div><div class="meta" style="color:var(--p2);font-weight:700">Inspection fee &euro;75 &middot; Available</div></div></div>
+<div class="card" data-i="1"><img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=80&auto=format&fit=crop" alt="Rotterdam apartment"><div class="cardbody"><div class="price">&euro;1,850 <small>/ month</small></div><b>Bright 1-bed apartment, Katendrecht</b><div class="meta">Rotterdam &middot; 1 bed &middot; 1 bath &middot; 52 m&sup2;</div><div class="meta" style="color:var(--p2);font-weight:700">Inspection fee &euro;60 &middot; Available</div></div></div>
+<div class="card" data-i="2"><img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=900&q=80&auto=format&fit=crop" alt="Utrecht apartment"><div class="cardbody"><div class="price">&euro;1,695 <small>/ month</small></div><b>Cozy 2-bed apartment, Wittevrouwen</b><div class="meta">Utrecht &middot; 2 bed &middot; 1 bath &middot; 61 m&sup2;</div><div class="meta" style="color:var(--p2);font-weight:700">Inspection fee &euro;60 &middot; Available</div></div></div>
+</div>
+
+<div class="detail"><div>
+<h2 id="hq-title" style="margin:0 0 8px;font-size:22px">Modern 2-bed apartment, Jordaan</h2>
+<p id="hq-loc">Herengracht area, Amsterdam. Light filled corner apartment, close to canals, trams, and shops. Furnished option available.</p>
+<p style="font-size:13px;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:10px">Inspection fee is non-refundable. It covers arranging and conducting your viewing. It does not reserve the property.</p>
+<button class="btn" id="hq-pay" style="background:var(--acc);color:#111">Pay inspection fee &euro;75</button>
+<div class="note" id="hq-paynote" style="color:rgba(255,255,255,.8)">Preview only. No real payment is taken here.</div>
+</div><div class="rows">
+<div class="row"><span>Monthly rent</span><b id="hq-rent">&euro;2,450</b></div>
+<div class="row"><span>Inspection / viewing fee</span><b id="hq-fee">&euro;75</b></div>
+<div class="row"><span>Remaining to secure (first month + deposit)</span><b id="hq-secure">&euro;4,900</b></div>
+<div class="row"><span>Due after inspection, if you proceed</span><b id="hq-secure2">&euro;4,900</b></div>
+</div></div>
+
+<div class="line"><i></i></div>
+<div class="steps">
+<div class="step"><div class="num">1</div><b>Browse homes</b><p style="font-size:13px">Compare real homes, prices, and neighbourhoods.</p></div>
+<div class="step"><div class="num">2</div><b>Choose a home</b><p style="font-size:13px">Check the details and the inspection fee.</p></div>
+<div class="step"><div class="num">3</div><b>Pay inspection fee</b><p style="font-size:13px">Pay securely online. You get email confirmation.</p></div>
+<div class="step"><div class="num">4</div><b>Arrange your viewing</b><p style="font-size:13px">We contact you with viewing times and next steps.</p></div>
+</div>
+<p class="note">Concept preview with sample listings for design review only. Final build will use real database listings, verified payments, and email confirmation. Currency shown in euros, rents shown monthly as is standard in the Netherlands.</p>
+</div>
+<script>
+(function(){
+var root=document.getElementById('hq');
+var defaults={palette:'brown',prop:0};
+var state={palette:'brown',prop:0};
+try{ if(window.hatchWidget){ var s=window.hatchWidget.getState(defaults); if(s && s.palette){state.palette=s.palette;} if(s && typeof s.prop==='number'){state.prop=s.prop;} } }catch(e){}
+var props=[
+{title:'Modern 2-bed apartment, Jordaan',loc:'Herengracht area, Amsterdam. Light filled corner apartment, close to canals, trams, and shops. Furnished option available.',rent:'\u20AC2,450',fee:'\u20AC75',secure:'\u20AC4,900'},
+{title:'Bright 1-bed apartment, Katendrecht',loc:'Wilhelminapier area, Rotterdam. Modern 1-bed with balcony, near metro and river views. Unfurnished.',rent:'\u20AC1,850',fee:'\u20AC60',secure:'\u20AC3,700'},
+{title:'Cozy 2-bed apartment, Wittevrouwen',loc:'Quiet street in Utrecht, near Griftpark and city centre. Ideal for a couple or small household.',rent:'\u20AC1,695',fee:'\u20AC60',secure:'\u20AC3,390'}
+];
+function apply(){
+root.setAttribute('data-palette',state.palette);
+var names={brown:'Brown, ash and gold',turquoise:'Turquoise',velvet:'Velvet red',strawberry:'Strawberry red'};
+var pn=root.querySelector('#hq-palname'); if(pn){pn.textContent='Current: '+(names[state.palette]||state.palette);}
+root.querySelectorAll('.pal button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-pal')===state.palette)});
+var p=props[state.prop]||props[0];
+root.querySelector('#hq-title').textContent=p.title;
+root.querySelector('#hq-loc').textContent=p.loc;
+root.querySelector('#hq-rent').textContent=p.rent;
+root.querySelector('#hq-fee').textContent=p.fee;
+root.querySelector('#hq-secure').textContent=p.secure;
+root.querySelector('#hq-secure2').textContent=p.secure;
+root.querySelector('#hq-pay').textContent='Pay inspection fee '+p.fee;
+root.querySelectorAll('.card').forEach(function(c){c.classList.toggle('sel',parseInt(c.getAttribute('data-i'),10)===state.prop)});
+}
+function save(){ apply(); try{ if(window.hatchWidget){window.hatchWidget.setState({palette:state.palette,prop:state.prop});} }catch(e){} }
+root.querySelectorAll('.pal button').forEach(function(b){b.addEventListener('click',function(){state.palette=b.getAttribute('data-pal');save();})});
+root.querySelectorAll('.card').forEach(function(c){c.addEventListener('click',function(){state.prop=parseInt(c.getAttribute('data-i'),10);save();})});
+root.querySelector('#hq-pay').addEventListener('click',function(){var btn=root.querySelector('#hq-pay');btn.textContent='Redirecting to secure checkout...';root.querySelector('#hq-paynote').textContent='Demo button only. In the real build this starts server verified checkout.';});
+window.addEventListener('hatch-widget-state',function(e){if(e.detail&&e.detail.state){state=e.detail.state;apply();}});
+apply();
+})();
+</script>
+</div>
