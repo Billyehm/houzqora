@@ -1,0 +1,68 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import FilterGrid from '@/components/FilterGrid';
+import { properties } from '@/lib/properties';
+
+export default function Home() {
+  return (
+    <div>
+      <section className="grid items-center gap-6 pt-2 lg:grid-cols-[1.05fr_0.95fr]">
+        <div>
+          <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-strawberry">Netherlands rentals · Amsterdam · Rotterdam · Utrecht</p>
+          <h1 className="mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-velvet sm:text-5xl">
+            Find a place you will be <span className="text-strawberry">proud</span> to call home.
+          </h1>
+          <p className="mt-4 max-w-xl text-muted">
+            Explore verified rental homes, pay the inspection fee securely online, and get clear next steps by email.
+            No hidden charges. Paying the fee does not reserve the home.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/properties" className="btn-press rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
+            <Link href="/how-it-works" className="btn-press rounded-full border border-line bg-white px-5 py-3 font-bold text-velvet">How it works</Link>
+          </div>
+          <p className="mt-4 text-sm text-muted">Verified listings · Clear fees · Inspection first, decision second</p>
+        </div>
+        <div className="relative h-72 overflow-hidden rounded-2xl border-4 border-white shadow-[0_18px_40px_rgba(94,18,32,0.16)] sm:h-96">
+          <Image src="https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1200&q=80&auto=format&fit=crop" alt="Amsterdam canal houses" fill sizes="(max-width: 1024px) 100vw, 50vw" className="img-zoom object-cover" priority />
+          <p className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-extrabold text-velvet">
+            <span className="live-dot inline-block h-2.5 w-2.5 rounded-full bg-strawberry" /> Available now in Amsterdam
+          </p>
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-2xl font-extrabold text-velvet">Featured homes</h2>
+        <p className="mt-1 text-muted">Search by city and bedrooms. Tap a home to see its inspection fee and securing amount.</p>
+        <div className="mt-4"><FilterGrid properties={properties} /></div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="text-2xl font-extrabold text-velvet">How it works</h2>
+        <div className="mt-3 border-t-[3px] border-dotted border-strawberry/70" />
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ['1', 'Browse homes', 'Compare real homes, prices, and neighbourhoods.'],
+            ['2', 'Sign up to book', 'Create your account only when you are ready to book.'],
+            ['3', 'Pay inspection fee', 'Pay securely online. You get email confirmation in the real build.'],
+            ['4', 'Arrange your viewing', 'Pick a slot. After login, you see only your homes, no adverts.'],
+          ].map(([n, t, d]) => (
+            <div key={t} className="rounded-2xl border border-line bg-white p-4">
+              <p className="grid h-8 w-8 place-items-center rounded-full bg-strawberry text-sm font-extrabold text-white">{n}</p>
+              <p className="mt-3 font-bold">{t}</p>
+              <p className="mt-1 text-sm text-muted">{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-12 rounded-2xl border border-line bg-white p-6">
+        <h2 className="text-2xl font-extrabold text-velvet">Trust and transparency</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div><p className="font-bold">What the fee covers</p><p className="mt-1 text-sm text-muted">Arranging and conducting your viewing, plus confirmation by email in the real build.</p></div>
+          <div><p className="font-bold">What it does not do</p><p className="mt-1 text-sm text-muted">It does not reserve, allocate, or guarantee the home. The home stays available until the securing payment is confirmed.</p></div>
+          <div><p className="font-bold">What happens next</p><p className="mt-1 text-sm text-muted">After payment, you pick a viewing slot in My homes, view the home, then decide.</p></div>
+        </div>
+      </section>
+    </div>
+  );
+}
