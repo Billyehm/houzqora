@@ -1,33 +1,30 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import FilterGrid from '@/components/FilterGrid';
+import CameraZoom from '@/components/scroll/CameraZoom';
+import WindowReveal from '@/components/scroll/WindowReveal';
+import CurtainReveal from '@/components/scroll/CurtainReveal';
+import BlueprintReveal from '@/components/scroll/BlueprintReveal';
 import { properties } from '@/lib/properties';
 
 export default function Home() {
   return (
     <div>
-      <section className="grid items-center gap-6 pt-2 lg:grid-cols-[1.05fr_0.95fr]">
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-strawberry">Netherlands rentals · Amsterdam · Rotterdam · Utrecht</p>
-          <h1 className="mt-3 text-4xl font-extrabold leading-[1.05] tracking-tight text-velvet sm:text-5xl">
-            Find a place you will be <span className="text-strawberry">proud</span> to call home.
-          </h1>
-          <p className="mt-4 max-w-xl text-muted">
-            Explore verified rental homes, pay the inspection fee securely online, and get clear next steps by email.
-            No hidden charges. Paying the fee does not reserve the home.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/properties" className="btn-press rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
-            <Link href="/how-it-works" className="btn-press rounded-full border border-line bg-white px-5 py-3 font-bold text-velvet">How it works</Link>
-          </div>
-          <p className="mt-4 text-sm text-muted">Verified listings · Clear fees · Inspection first, decision second</p>
+      <CameraZoom />
+
+      <section className="pt-10">
+        <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-strawberry">Netherlands rentals · Amsterdam · Rotterdam · Utrecht</p>
+        <h1 className="mt-3 max-w-2xl text-4xl font-extrabold leading-[1.05] tracking-tight text-velvet sm:text-5xl">
+          Find a place you will be <span className="text-strawberry">proud</span> to call home.
+        </h1>
+        <p className="mt-4 max-w-xl text-muted">
+          Explore verified rental homes, pay the inspection fee securely online in the real build, and get clear next steps by email.
+          No hidden charges. Paying the fee does not reserve the home.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link href="/properties" className="btn-press rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
+          <Link href="/how-it-works" className="btn-press rounded-full border border-line bg-white px-5 py-3 font-bold text-velvet">How it works</Link>
         </div>
-        <div className="relative h-72 overflow-hidden rounded-2xl border-4 border-white shadow-[0_18px_40px_rgba(94,18,32,0.16)] sm:h-96">
-          <Image src="https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1200&q=80&auto=format&fit=crop" alt="Amsterdam canal houses" fill sizes="(max-width: 1024px) 100vw, 50vw" className="img-zoom object-cover" priority />
-          <p className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-extrabold text-velvet">
-            <span className="live-dot inline-block h-2.5 w-2.5 rounded-full bg-strawberry" /> Available now in Amsterdam
-          </p>
-        </div>
+        <p className="mt-4 text-sm text-muted">Verified listings · Clear fees · Inspection first, decision second</p>
       </section>
 
       <section className="mt-10">
@@ -35,6 +32,24 @@ export default function Home() {
         <p className="mt-1 text-muted">Search by city and bedrooms. Tap a home to see its inspection fee and securing amount.</p>
         <div className="mt-4"><FilterGrid properties={properties} /></div>
       </section>
+
+      <WindowReveal />
+
+      <section className="py-12 text-center">
+        <h2 className="mx-auto max-w-xl text-2xl font-extrabold text-velvet">Open the door, in your own time.</h2>
+        <p className="mx-auto mt-2 max-w-md text-muted">Scroll at your pace. Every reveal above is tied to your scroll, so you can stop, go back, and look again.</p>
+        <Link href="/properties" className="btn-press mt-4 inline-block rounded-full border border-line bg-white px-5 py-3 font-bold text-velvet">Browse all homes</Link>
+      </section>
+
+      <CurtainReveal />
+
+      <section className="py-12 text-center">
+        <h2 className="mx-auto max-w-xl text-2xl font-extrabold text-velvet">Homes that feel finished, not just listed.</h2>
+        <p className="mx-auto mt-2 max-w-md text-muted">Clear rent in euros per month, a clear inspection fee, and a clear amount to secure the home.</p>
+        <Link href="/properties" className="btn-press mt-4 inline-block rounded-full bg-velvet px-5 py-3 font-bold text-white">See the full list</Link>
+      </section>
+
+      <BlueprintReveal />
 
       <section className="mt-12">
         <h2 className="text-2xl font-extrabold text-velvet">How it works</h2>
@@ -61,6 +76,10 @@ export default function Home() {
           <div><p className="font-bold">What the fee covers</p><p className="mt-1 text-sm text-muted">Arranging and conducting your viewing, plus confirmation by email in the real build.</p></div>
           <div><p className="font-bold">What it does not do</p><p className="mt-1 text-sm text-muted">It does not reserve, allocate, or guarantee the home. The home stays available until the securing payment is confirmed.</p></div>
           <div><p className="font-bold">What happens next</p><p className="mt-1 text-sm text-muted">After payment, you pick a viewing slot in My homes, view the home, then decide.</p></div>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link href="/properties" className="btn-press rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available properties</Link>
+          <Link href="/contact" className="btn-press rounded-full border border-line bg-white px-5 py-3 font-bold text-velvet">Contact the agency</Link>
         </div>
       </section>
     </div>
