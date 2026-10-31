@@ -6,6 +6,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { blueprintFinals, useRefreshPick } from '@/lib/scrollImages';
+import CardScrollbars from './CardScrollbars';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -28,6 +29,8 @@ export default function BlueprintReveal() {
   const finalRef = useRef<HTMLDivElement | null>(null);
   const firstHeadingRef = useRef<HTMLDivElement | null>(null);
   const finalHeadingRef = useRef<HTMLDivElement | null>(null);
+  const leftThumbRef = useRef<HTMLDivElement | null>(null);
+  const rightThumbRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -38,6 +41,7 @@ export default function BlueprintReveal() {
       gsap.set([blueprintRef.current, structuralRef.current, materialsRef.current, environmentRef.current, firstHeadingRef.current], { opacity: 0 });
       gsap.set(finalRef.current, { opacity: 1, clipPath: 'inset(0% 0% 0% 0%)', scale: 1 });
       gsap.set(finalHeadingRef.current, { opacity: 1, y: 0 });
+      gsap.set([leftThumbRef.current, rightThumbRef.current], { yPercent: 300 });
       return;
     }
     const ctx = gsap.context(() => {
@@ -62,6 +66,9 @@ export default function BlueprintReveal() {
           .fromTo(environmentRef.current, { opacity: 0 }, { opacity: 1, ease: 'none' }, 0.55)
           .fromTo(finalRef.current, { opacity: 0, scale: 1.08, clipPath: 'inset(100% 0% 0% 0%)' }, { opacity: 1, scale: 1, clipPath: 'inset(0% 0% 0% 0%)', ease: 'none' }, 0.8)
           .fromTo(finalHeadingRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: 'none' }, 0.85);
+        // Both scrollbar thumbs share this one tween, so left and right
+        // always sit at the same position and follow pinned progress.
+        tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
         return tl;
       };
       mm.add('(min-width: 1024px)', () => build('+=300%'));
@@ -156,13 +163,18 @@ export default function BlueprintReveal() {
       <div ref={firstHeadingRef} className="absolute inset-x-0 top-10 px-6 text-center">
         <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#bcd6e6]">From drawing to home</p>
         <h2 className="mx-auto mt-2 max-w-xl text-3xl font-extrabold sm:text-4xl">Every home begins with an idea.</h2>
-        <p className="mt-2 text-sm text-white/80">Scroll to watch the plan take shape.</p>
       </div>
       <div ref={finalHeadingRef} className="absolute inset-x-0 bottom-12 px-6 text-center opacity-0">
         <h2 className="mx-auto max-w-xl text-3xl font-extrabold text-white drop-shadow sm:text-4xl">From vision to the place you will call home.</h2>
         <p className="mx-auto mt-3 max-w-md text-white/90 drop-shadow">Discover properties designed for the way you want to live.</p>
         <Link href="/properties" className="btn-press mt-4 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available properties</Link>
       </div>
+      <div aria-hidden="true" className="absolute bottom-2 left-1/2 z-20 -translate-x-1/2">
+        <div className="flex h-8 w-8 animate-bounce items-center justify-center rounded-full bg-black/45 text-white shadow ring-1 ring-white/40 motion-reduce:animate-none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+        </div>
+      </div>
+      <CardScrollbars leftThumbRef={leftThumbRef} rightThumbRef={rightThumbRef} />
       </div>
     </section>
   );

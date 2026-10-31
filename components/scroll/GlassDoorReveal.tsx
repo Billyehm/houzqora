@@ -6,23 +6,28 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { glassDoorInteriors, useRefreshPick } from '@/lib/scrollImages';
+import CardScrollbars from './CardScrollbars';
 
 gsap.registerPlugin(ScrollTrigger);
 
 /*
- * GlassDoorReveal: scroll-controlled, reversible opaque glass sliding doors,
+ * GlassDoorReveal: scroll-controlled, reversible frosted glass sliding doors,
  * inside a card. The card is pinned, not a full-screen scene.
  * No timers, no autoplay. Scroll progress alone moves the doors.
  * Reduced motion: doors are set open inside the card and no pin is used.
- * The doors are opaque frosted glass, so the property behind them is not
- * clearly visible until they slide open. Frost texture is fine vertical
- * frost lines plus a faint diagonal reflection stripe, not a flat block.
- * Frames are dark slim aluminium, with top and bottom sliding tracks.
+ * The doors are translucent frosted glass, not opaque: the interior behind
+ * them is visible but blurred through backdrop-filter blur, and unreadable
+ * until the doors slide apart and the interior becomes fully clear.
+ * Frost texture is fine vertical frost lines plus a faint diagonal
+ * reflection stripe, not a flat block. Frames are dark slim aluminium,
+ * with top and bottom sliding tracks.
  */
 const frostStyle: React.CSSProperties = {
-  backgroundColor: '#e8ecec',
+  backgroundColor: 'rgba(232, 236, 236, 0.62)',
   backgroundImage:
-    'repeating-linear-gradient(90deg, rgba(255,255,255,0.95) 0px, rgba(255,255,255,0.95) 5px, rgba(210,218,218,0.9) 7px, rgba(255,255,255,0.92) 10px, rgba(225,230,230,0.95) 14px, rgba(255,255,255,0.95) 18px)',
+    'repeating-linear-gradient(90deg, rgba(255,255,255,0.55) 0px, rgba(255,255,255,0.55) 5px, rgba(210,218,218,0.45) 7px, rgba(255,255,255,0.5) 10px, rgba(225,230,230,0.5) 14px, rgba(255,255,255,0.55) 18px)',
+  backdropFilter: 'blur(14px) saturate(1.1)',
+  WebkitBackdropFilter: 'blur(14px) saturate(1.1)',
 };
 
 export default function GlassDoorReveal() {
@@ -33,7 +38,8 @@ export default function GlassDoorReveal() {
   const rightRef = useRef<HTMLDivElement | null>(null);
   const veilRef = useRef<HTMLDivElement | null>(null);
   const headingRef = useRef<HTMLDivElement | null>(null);
-  const hintRef = useRef<HTMLParagraphElement | null>(null);
+  const leftThumbRef = useRef<HTMLDivElement | null>(null);
+  const rightThumbRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -43,8 +49,9 @@ export default function GlassDoorReveal() {
     if (reduced) {
       gsap.set(leftRef.current, { xPercent: -88, scaleX: 0.35 });
       gsap.set(rightRef.current, { xPercent: 88, scaleX: 0.35 });
-      gsap.set([veilRef.current, hintRef.current], { opacity: 0 });
+      gsap.set(veilRef.current, { opacity: 0 });
       gsap.set(headingRef.current, { opacity: 1, y: 0 });
+      gsap.set([leftThumbRef.current, rightThumbRef.current], { yPercent: 300 });
       return;
     }
     const ctx = gsap.context(() => {
@@ -72,8 +79,10 @@ export default function GlassDoorReveal() {
           .to(leftRef.current, { xPercent: -90, scaleX: 0.35, ease: 'none' }, 0.75)
           .to(rightRef.current, { xPercent: 90, scaleX: 0.35, ease: 'none' }, 0.75)
           .to(veilRef.current, { opacity: 0, ease: 'none' }, 0)
-          .to(hintRef.current, { opacity: 0, ease: 'none' }, 0.1)
           .fromTo(headingRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: 'none' }, 0.75);
+        // Both scrollbar thumbs share this one tween, so left and right
+        // always sit at the same position and follow pinned progress.
+        tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
         return tl;
       };
       mm.add('(min-width: 1024px)', () => build('+=200%'));
@@ -129,7 +138,12 @@ export default function GlassDoorReveal() {
           <p className="mx-auto mt-3 max-w-md text-white/90 drop-shadow">{"Explore exceptional homes in locations you'll love."}</p>
           <Link href="/properties" className="btn-press mt-5 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
         </div>
-        <p ref={hintRef} className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-full bg-white/90 px-4 py-2 text-xs font-bold text-velvet">Scroll to slide the glass doors open</p>
+        <div aria-hidden="true" className="absolute bottom-2 left-1/2 z-20 -translate-x-1/2">
+          <div className="flex h-8 w-8 animate-bounce items-center justify-center rounded-full bg-black/45 text-white shadow ring-1 ring-white/40 motion-reduce:animate-none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+          </div>
+        </div>
+        <CardScrollbars leftThumbRef={leftThumbRef} rightThumbRef={rightThumbRef} />
       </div>
     </section>
   );

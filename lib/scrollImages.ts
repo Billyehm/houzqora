@@ -48,11 +48,17 @@ export const cameraPairs: CameraPair[] = [
   },
 ];
 
+/*
+ * Plain wall textures for WindowReveal, not house exteriors.
+ * Exactly four options, picked only on page refresh by useRefreshPick.
+ * 1 brown brick design, 2 deep purple rough paint job,
+ * 3 warm beige plaster texture, 4 soft sage green textured paint.
+ */
 export const windowWalls: string[] = [
-  u('photo-1580587771525-78b9dba3b914'),
-  u('photo-1570129477492-45c003edd2be'),
-  u('photo-1568605114967-8130f3a36994'),
-  u('photo-1600585154340-be6161a56a0c'),
+  u('photo-1524230572899-a752b3835840'),
+  u('photo-1561214115-f2f134cc4912'),
+  u('photo-1528459801416-a9e53bbf4e17'),
+  u('photo-1615873968403-89e068629265'),
 ];
 
 export const windowInteriors: string[] = [

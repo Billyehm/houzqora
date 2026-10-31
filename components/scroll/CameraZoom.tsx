@@ -6,6 +6,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { cameraPairs, useRefreshPick } from '@/lib/scrollImages';
+import CardScrollbars from './CardScrollbars';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,7 +26,8 @@ export default function CameraZoom() {
   const interiorRef = useRef<HTMLDivElement | null>(null);
   const firstHeadingRef = useRef<HTMLDivElement | null>(null);
   const finalHeadingRef = useRef<HTMLDivElement | null>(null);
-  const hintRef = useRef<HTMLParagraphElement | null>(null);
+  const leftThumbRef = useRef<HTMLDivElement | null>(null);
+  const rightThumbRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -37,7 +39,7 @@ export default function CameraZoom() {
       gsap.set(interiorRef.current, { opacity: 1, scale: 1 });
       gsap.set(firstHeadingRef.current, { opacity: 0 });
       gsap.set(finalHeadingRef.current, { opacity: 1, y: 0 });
-      gsap.set(hintRef.current, { opacity: 0 });
+      gsap.set([leftThumbRef.current, rightThumbRef.current], { yPercent: 300 });
       return;
     }
     const ctx = gsap.context(() => {
@@ -58,8 +60,10 @@ export default function CameraZoom() {
           .to(firstHeadingRef.current, { opacity: 0, y: -20, ease: 'none' }, 0.35)
           .fromTo(interiorRef.current, { opacity: 0, scale: 1.15 }, { opacity: 1, scale: 1, ease: 'none' }, 0.72)
           .to(exteriorRef.current, { opacity: 0, ease: 'none' }, 0.85)
-          .to(hintRef.current, { opacity: 0, ease: 'none' }, 0.1)
           .fromTo(finalHeadingRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: 'none' }, 0.85);
+        // Both scrollbar thumbs share this one tween, so left and right
+        // always sit at the same position and follow pinned progress.
+        tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
         return tl;
       };
       mm.add('(min-width: 1024px)', () => build('+=200%', 1.9));
@@ -102,7 +106,12 @@ export default function CameraZoom() {
           <h2 className="mx-auto max-w-xl text-3xl font-extrabold text-white drop-shadow sm:text-4xl">Explore homes worth coming home to.</h2>
           <Link href="/properties" className="btn-press mt-4 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
         </div>
-        <p ref={hintRef} className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-4 py-2 text-xs font-bold text-velvet">Scroll to move closer</p>
+        <div aria-hidden="true" className="absolute bottom-2 left-1/2 z-20 -translate-x-1/2">
+          <div className="flex h-8 w-8 animate-bounce items-center justify-center rounded-full bg-black/45 text-white shadow ring-1 ring-white/40 motion-reduce:animate-none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+          </div>
+        </div>
+        <CardScrollbars leftThumbRef={leftThumbRef} rightThumbRef={rightThumbRef} />
       </div>
     </section>
   );

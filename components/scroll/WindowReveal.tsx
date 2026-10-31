@@ -6,12 +6,14 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { windowInteriors, windowWalls, useRefreshPick } from '@/lib/scrollImages';
+import CardScrollbars from './CardScrollbars';
 
 gsap.registerPlugin(ScrollTrigger);
 
 /*
- * WindowReveal: one single window on a realistic painted house wall,
- * inside a card. The wall stays in place for the whole animation.
+ * WindowReveal: one single window on a plain wall surface,
+ * inside a card. No house, roof, ground, or foreground scene.
+ * The wall stays in place for the whole animation.
  * Only the window pane moves, and it moves vertically upwards.
  * Initially the pane covers the window opening. As scroll progress
  * rises, the pane slides up out of the frame and the luxury living
@@ -30,7 +32,8 @@ export default function WindowReveal() {
   const paneRef = useRef<HTMLDivElement | null>(null);
   const veilRef = useRef<HTMLDivElement | null>(null);
   const headingRef = useRef<HTMLDivElement | null>(null);
-  const hintRef = useRef<HTMLParagraphElement | null>(null);
+  const leftThumbRef = useRef<HTMLDivElement | null>(null);
+  const rightThumbRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -39,8 +42,9 @@ export default function WindowReveal() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) {
       gsap.set(paneRef.current, { yPercent: -110 });
-      gsap.set([veilRef.current, hintRef.current], { opacity: 0 });
+      gsap.set(veilRef.current, { opacity: 0 });
       gsap.set(headingRef.current, { opacity: 1, y: 0 });
+      gsap.set([leftThumbRef.current, rightThumbRef.current], { yPercent: 300 });
       return;
     }
     const ctx = gsap.context(() => {
@@ -59,8 +63,10 @@ export default function WindowReveal() {
         });
         tl.to(paneRef.current, { yPercent: -110, ease: 'none' }, 0)
           .to(veilRef.current, { opacity: 0, ease: 'none' }, 0)
-          .to(hintRef.current, { opacity: 0, ease: 'none' }, 0.1)
           .fromTo(headingRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: 'none' }, 0.7);
+        // Both scrollbar thumbs share this one tween, so left and right
+        // always sit at the same position and follow pinned progress.
+        tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
         return tl;
       };
       mm.add('(min-width: 1024px)', () => build('+=200%'));
@@ -79,7 +85,7 @@ export default function WindowReveal() {
         <div className="absolute inset-0">
           <Image
             src={wallSrc}
-            alt="Realistic painted house wall, warm neutral paint with visible wall texture"
+            alt="Plain textured wall surface filling the card, no house or outdoor scene"
             fill
             sizes="(max-width: 1152px) 100vw, 1152px"
             className="object-cover"
@@ -88,7 +94,7 @@ export default function WindowReveal() {
         </div>
 
         <div className="absolute left-1/2 top-1/2 w-[78%] max-w-[560px] -translate-x-1/2 -translate-y-1/2 sm:w-[64%] lg:w-[52%]">
-          <div className="relative h-[46vh] min-h-[280px] overflow-hidden border-[10px] border-white shadow-[0_18px_50px_rgba(0,0,0,0.45)] sm:h-[50vh] lg:h-[52vh] lg:max-h-[500px]">
+          <div className="relative h-[46vh] min-h-[280px] overflow-hidden border-[12px] border-[#f2efe9] shadow-[0_18px_50px_rgba(0,0,0,0.45),inset_0_2px_8px_rgba(0,0,0,0.25)] sm:h-[50vh] lg:h-[52vh] lg:max-h-[500px]">
             <div className="absolute inset-0">
               <Image
                 src={interiorSrc}
@@ -99,26 +105,35 @@ export default function WindowReveal() {
               />
             </div>
             <div ref={veilRef} className="absolute inset-0 bg-velvetdark/25" />
-            <div ref={paneRef} className="absolute inset-0 bg-[#dbe7ea]">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/70 via-[#cfe0e6]/90 to-[#aebfC6]/90" />
-              <div className="pointer-events-none absolute inset-y-0 left-[18%] w-12 -skew-x-12 bg-white/50" />
-              <div className="pointer-events-none absolute inset-y-0 left-[62%] w-6 -skew-x-12 bg-white/40" />
-              <div className="absolute inset-y-0 left-1/2 w-2 -translate-x-1/2 bg-white shadow" />
-              <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 bg-white shadow" />
-              <div className="absolute inset-0 border-[6px] border-white/90" />
-              <div className="absolute bottom-4 left-1/2 h-2 w-16 -translate-x-1/2 rounded-full bg-[#3a3f44] shadow" />
+            <div ref={paneRef} className="absolute inset-0">
+              <div className="absolute inset-0 bg-[#c9d6da]/95 shadow-[inset_0_0_24px_rgba(0,0,0,0.25)]" />
+              <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-transparent to-black/20" />
+              <div className="pointer-events-none absolute inset-y-0 left-[30%] w-8 -skew-x-12 bg-white/25" />
+              <div className="absolute inset-[10px] border border-[#e8e4dc] shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)]" />
+              <div className="absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 bg-[#f2efe9] shadow-[1px_0_2px_rgba(0,0,0,0.4),-1px_0_2px_rgba(255,255,255,0.6)]" />
+              <div className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 bg-[#f2efe9] shadow-[0_1px_2px_rgba(0,0,0,0.4),0_-1px_2px_rgba(255,255,255,0.6)]" />
+              <div className="absolute inset-0 border-[6px] border-[#f2efe9] shadow-[inset_0_2px_6px_rgba(0,0,0,0.35)]" />
+              <div className="absolute bottom-5 right-5 flex flex-col items-center">
+                <div className="h-2 w-4 rounded-full bg-[#6b7176] shadow" />
+                <div className="h-9 w-[3px] bg-gradient-to-b from-[#9aa0a5] to-[#5c6165] shadow" />
+              </div>
             </div>
-            <div className="pointer-events-none absolute inset-0 border-2 border-black/10" />
+            <div className="pointer-events-none absolute inset-0 border border-black/20 shadow-[inset_0_3px_10px_rgba(0,0,0,0.3)]" />
           </div>
-          <div className="mx-auto -mt-1 h-3 w-[112%] max-w-[620px] -translate-x-[5%] rounded-b-lg bg-white shadow-[0_10px_25px_rgba(0,0,0,0.35)]" />
+          <div className="mx-auto -mt-1 h-3 w-[112%] max-w-[620px] -translate-x-[5%] rounded-b-lg bg-[#f2efe9] shadow-[0_10px_25px_rgba(0,0,0,0.35)]" />
         </div>
 
-        <div ref={headingRef} className="absolute inset-x-0 bottom-10 px-6 text-center opacity-0">
+        <div ref={headingRef} className="absolute inset-x-0 bottom-14 px-6 text-center opacity-0">
           <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-white drop-shadow">Inside the home</p>
           <h2 className="mx-auto mt-2 max-w-xl text-2xl font-extrabold text-white drop-shadow sm:text-4xl">Light, space, and room to breathe.</h2>
           <Link href="/properties" className="btn-press mt-4 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
         </div>
-        <p ref={hintRef} className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-4 py-2 text-xs font-bold text-velvet">Scroll to open the window upwards</p>
+        <div aria-hidden="true" className="absolute bottom-2 left-1/2 z-20 -translate-x-1/2">
+          <div className="flex h-8 w-8 animate-bounce items-center justify-center rounded-full bg-black/45 text-white shadow ring-1 ring-white/40 motion-reduce:animate-none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+          </div>
+        </div>
+        <CardScrollbars leftThumbRef={leftThumbRef} rightThumbRef={rightThumbRef} />
       </div>
     </section>
   );
