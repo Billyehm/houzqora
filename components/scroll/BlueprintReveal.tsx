@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { blueprintFinals, useRefreshPick } from '@/lib/scrollImages';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,7 +18,9 @@ gsap.registerPlugin(ScrollTrigger);
  * No timers, no autoplay, scrub only. Reduced motion shows the final photo.
  */
 export default function BlueprintReveal() {
+  const finalSrc = useRefreshPick(blueprintFinals);
   const sectionRef = useRef<HTMLElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
   const blueprintRef = useRef<HTMLDivElement | null>(null);
   const structuralRef = useRef<HTMLDivElement | null>(null);
   const materialsRef = useRef<HTMLDivElement | null>(null);
@@ -28,7 +31,8 @@ export default function BlueprintReveal() {
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    const card = cardRef.current;
+    if (!section || !card) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) {
       gsap.set([blueprintRef.current, structuralRef.current, materialsRef.current, environmentRef.current, firstHeadingRef.current], { opacity: 0 });
@@ -41,8 +45,8 @@ export default function BlueprintReveal() {
       const build = (end: string) => {
         const tl = gsap.timeline({
           scrollTrigger: {
-            trigger: section,
-            start: 'top top',
+            trigger: card,
+            start: 'top 12%',
             end,
             scrub: true,
             pin: true,
@@ -70,12 +74,11 @@ export default function BlueprintReveal() {
   const svgProps = { viewBox: '0 0 800 520', className: 'h-full w-full', preserveAspectRatio: 'xMidYMid meet' } as const;
 
   return (
-    <section
-      ref={sectionRef}
-      aria-label="Blueprint to reality"
-      className="relative h-[100svh] min-h-[600px] overflow-hidden bg-[#102a43] text-white"
-      style={{ width: '100vw', marginLeft: 'calc(50% - 50vw)' }}
-    >
+    <section ref={sectionRef} aria-label="Blueprint to reality" className="relative mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+      <div
+        ref={cardRef}
+        className="relative h-[62vh] min-h-[460px] overflow-hidden rounded-3xl border border-line bg-[#102a43] text-white shadow-[0_24px_60px_rgba(94,18,32,0.25)] sm:h-[68vh] sm:min-h-[500px] lg:h-[min(72vh,720px)]"
+      >
       <div ref={blueprintRef} className="absolute inset-0 p-4 sm:p-10">
         <svg {...svgProps}>
           <defs>
@@ -142,10 +145,10 @@ export default function BlueprintReveal() {
       </div>
       <div ref={finalRef} className="absolute inset-0 opacity-0">
         <Image
-          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80&auto=format&fit=crop"
+          src={finalSrc}
           alt="Finished modern house, photorealistic exterior"
           fill
-          sizes="100vw"
+          sizes="(max-width: 1152px) 100vw, 1152px"
           className="object-cover"
           priority
         />
@@ -159,6 +162,7 @@ export default function BlueprintReveal() {
         <h2 className="mx-auto max-w-xl text-3xl font-extrabold text-white drop-shadow sm:text-4xl">From vision to the place you will call home.</h2>
         <p className="mx-auto mt-3 max-w-md text-white/90 drop-shadow">Discover properties designed for the way you want to live.</p>
         <Link href="/properties" className="btn-press mt-4 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available properties</Link>
+      </div>
       </div>
     </section>
   );

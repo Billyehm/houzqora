@@ -2,7 +2,7 @@ import Link from 'next/link';
 import FilterGrid from '@/components/FilterGrid';
 import CameraZoom from '@/components/scroll/CameraZoom';
 import WindowReveal from '@/components/scroll/WindowReveal';
-import CurtainReveal from '@/components/scroll/CurtainReveal';
+import GlassDoorReveal from '@/components/scroll/GlassDoorReveal';
 import BlueprintReveal from '@/components/scroll/BlueprintReveal';
 import { properties } from '@/lib/properties';
 
@@ -41,7 +41,7 @@ export default function Home() {
         <Link href="/properties" className="btn-press mt-4 inline-block rounded-full border border-line bg-white px-5 py-3 font-bold text-velvet">Browse all homes</Link>
       </section>
 
-      <CurtainReveal />
+      <GlassDoorReveal />
 
       <section className="py-12 text-center">
         <h2 className="mx-auto max-w-xl text-2xl font-extrabold text-velvet">Homes that feel finished, not just listed.</h2>
