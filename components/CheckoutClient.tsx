@@ -42,7 +42,7 @@ export default function CheckoutClient({ p }: { p: Property }) {
         <h2 className="text-xl font-extrabold text-velvet">Demo inspection fee recorded</h2>
         <p className="mt-2 text-muted">No real money was taken. In the real build, this step would verify the payment with Mollie or Stripe with iDEAL, then send a confirmation email.</p>
         <p className="mt-3 text-sm">Next step: pick a viewing slot in My homes.</p>
-        <button onClick={() => router.push('/my-homes')} className="btn-press mt-4 rounded-full bg-strawberry px-5 py-3 font-bold text-white">Go to My homes</button>
+        <button onClick={() => router.push('/bookings')} className="btn-press mt-4 rounded-full bg-strawberry px-5 py-3 font-bold text-white">Go to Bookings</button>
       </div>
     );
   }

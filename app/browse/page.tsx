@@ -1,5 +1,5 @@
-import BrowseClient from '@/components/BrowseClient';
+import { redirect } from 'next/navigation';
 
 export default function BrowsePage() {
-  return <BrowseClient />;
+  redirect('/dashboard');
 }

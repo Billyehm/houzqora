@@ -8,6 +8,7 @@ export type MyHomeState = { paid: boolean; slot: string };
 const USER_KEY = 'houzqora_demo_user';
 const HOMES_KEY = 'houzqora_demo_homes';
 const PENDING_KEY = 'houzqora_demo_pending';
+const SAVED_KEY = 'houzqora_demo_saved';
 
 export function getDemoUser(): DemoUser | null {
   if (typeof window === 'undefined') return null;
@@ -28,7 +29,26 @@ export function clearDemoUser() {
   window.localStorage.removeItem(USER_KEY);
   window.localStorage.removeItem(HOMES_KEY);
   window.localStorage.removeItem(PENDING_KEY);
+  window.localStorage.removeItem(SAVED_KEY);
   document.cookie = 'houzqora_demo=; path=/; max-age=0';
+}
+
+export function getSavedSlugs(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(SAVED_KEY);
+    return raw ? (JSON.parse(raw) as string[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+// Returns true when the home is saved after the toggle.
+export function toggleSavedSlug(slug: string): boolean {
+  const saved = getSavedSlugs();
+  const next = saved.includes(slug) ? saved.filter((s) => s !== slug) : [...saved, slug];
+  window.localStorage.setItem(SAVED_KEY, JSON.stringify(next));
+  return next.includes(slug);
 }
 
 export function getMyHomes(): Record<string, MyHomeState> {

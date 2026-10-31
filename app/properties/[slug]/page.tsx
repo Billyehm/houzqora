@@ -46,7 +46,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
             Inspection fee is non-refundable. It covers arranging and conducting your viewing. It does not reserve this home.
           </p>
           <div className="mt-4"><BookActions slug={p.slug} /></div>
-          <p className="mt-3 text-xs text-white/70">If you are not signed in, booking will take you to signup first, then to Welcome browse homes.</p>
+          <p className="mt-3 text-xs text-white/70">If you are not signed in, booking will take you to signup first, then to Dashboard.</p>
         </aside>
       </div>
     </div>

@@ -50,15 +50,40 @@ export const cameraPairs: CameraPair[] = [
 
 /*
  * Plain wall textures for WindowReveal, not house exteriors.
- * Exactly four options, picked only on page refresh by useRefreshPick.
- * 1 brown brick design, 2 deep purple rough paint job,
- * 3 warm beige plaster texture, 4 soft sage green textured paint.
+ * Five options, picked only on page refresh by useRefreshPick.
+ * 1 brown brick, 2 rough purple, 3 warm beige plaster,
+ * 4 soft sage green textured paint, 5 wooden wall.
+ * The rough purple entry is NOT a native purple photo: it is a
+ * visually verified rough dark grey wall texture with a deep
+ * purple tint overlay applied in WindowReveal, so the roughness
+ * stays visible and the colour reads purple. The other four
+ * entries were each checked visually as edge-to-edge textures
+ * with no house, room, or foreground scene in them.
  */
-export const windowWalls: string[] = [
-  u('photo-1524230572899-a752b3835840'),
-  u('photo-1561214115-f2f134cc4912'),
-  u('photo-1528459801416-a9e53bbf4e17'),
-  u('photo-1615873968403-89e068629265'),
+export type WindowWall = { src: string; label: string; tint?: string };
+
+export const windowWalls: WindowWall[] = [
+  {
+    src: 'https://res.halfphoto.com/o/1766251955928206/rustic_brick_wall_texture.jpg',
+    label: 'Brown brick',
+  },
+  {
+    src: u('photo-1585314062340-f1a5a7c9328d'),
+    label: 'Rough purple',
+    tint: '#7c3aed',
+  },
+  {
+    src: 'https://atria-usa.com/_next/image?url=%2Fimages%2Fcolors%2Flimewash-c2-avorio.jpg&w=1080&q=75',
+    label: 'Warm beige plaster',
+  },
+  {
+    src: 'https://img.myloview.se/fototapeter/green-old-wall-background-texture-700-247921236.jpg',
+    label: 'Soft sage green',
+  },
+  {
+    src: 'https://depotimage.com/wp-content/uploads/2025/03/Wooden-Wall-Background.jpg',
+    label: 'Wooden wall',
+  },
 ];
 
 export const windowInteriors: string[] = [

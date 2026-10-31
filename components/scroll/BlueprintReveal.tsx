@@ -4,11 +4,10 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { blueprintFinals, useRefreshPick } from '@/lib/scrollImages';
 import CardScrollbars from './CardScrollbars';
+import { attachCardLock } from './cardLock';
 
-gsap.registerPlugin(ScrollTrigger);
 
 /*
  * BlueprintReveal: hybrid layered transition, stated honestly.
@@ -44,20 +43,10 @@ export default function BlueprintReveal() {
       gsap.set([leftThumbRef.current, rightThumbRef.current], { yPercent: 300 });
       return;
     }
+    let releaseLock: (() => void) | null = null;
     const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
-      const build = (end: string) => {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 12%',
-            end,
-            scrub: true,
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        });
+      {
+        const tl = gsap.timeline({ paused: true });
         tl.fromTo(structuralRef.current, { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, transformOrigin: '50% 100%', ease: 'none' }, 0.15)
           .to(firstHeadingRef.current, { opacity: 0, y: -20, ease: 'none' }, 0.12)
           .fromTo(materialsRef.current, { opacity: 0 }, { opacity: 1, ease: 'none' }, 0.35)
@@ -69,13 +58,13 @@ export default function BlueprintReveal() {
         // Both scrollbar thumbs share this one tween, so left and right
         // always sit at the same position and follow pinned progress.
         tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
-        return tl;
-      };
-      mm.add('(min-width: 1024px)', () => build('+=300%'));
-      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build('+=220%'));
-      mm.add('(max-width: 639px)', () => build('+=160%'));
+        releaseLock = attachCardLock(card, tl, () => (window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2.2 : 1.6), 'blueprint');
+      }
     }, section);
-    return () => ctx.revert();
+    return () => {
+      releaseLock?.();
+      ctx.revert();
+    };
   }, []);
 
   const svgProps = { viewBox: '0 0 800 520', className: 'h-full w-full', preserveAspectRatio: 'xMidYMid meet' } as const;

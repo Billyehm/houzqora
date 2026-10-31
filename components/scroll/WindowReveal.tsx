@@ -4,11 +4,10 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { windowInteriors, windowWalls, useRefreshPick } from '@/lib/scrollImages';
 import CardScrollbars from './CardScrollbars';
+import { attachCardLock } from './cardLock';
 
-gsap.registerPlugin(ScrollTrigger);
 
 /*
  * WindowReveal: one single window on a plain wall surface,
@@ -25,7 +24,8 @@ gsap.registerPlugin(ScrollTrigger);
  * only change on page refresh, never during scrolling.
  */
 export default function WindowReveal() {
-  const wallSrc = useRefreshPick(windowWalls);
+  const wall = useRefreshPick(windowWalls);
+  const wallSrc = wall.src;
   const interiorSrc = useRefreshPick(windowInteriors);
   const sectionRef = useRef<HTMLElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -47,33 +47,23 @@ export default function WindowReveal() {
       gsap.set([leftThumbRef.current, rightThumbRef.current], { yPercent: 300 });
       return;
     }
+    let releaseLock: (() => void) | null = null;
     const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia();
-      const build = (end: string) => {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 12%',
-            end,
-            scrub: true,
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        });
+      {
+        const tl = gsap.timeline({ paused: true });
         tl.to(paneRef.current, { yPercent: -110, ease: 'none' }, 0)
           .to(veilRef.current, { opacity: 0, ease: 'none' }, 0)
           .fromTo(headingRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: 'none' }, 0.7);
         // Both scrollbar thumbs share this one tween, so left and right
         // always sit at the same position and follow pinned progress.
         tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
-        return tl;
-      };
-      mm.add('(min-width: 1024px)', () => build('+=200%'));
-      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build('+=160%'));
-      mm.add('(max-width: 639px)', () => build('+=120%'));
+        releaseLock = attachCardLock(card, tl, () => (window.innerWidth >= 1024 ? 2 : window.innerWidth >= 640 ? 1.6 : 1.2), 'window');
+      }
     }, section);
-    return () => ctx.revert();
+    return () => {
+      releaseLock?.();
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -85,16 +75,26 @@ export default function WindowReveal() {
         <div className="absolute inset-0">
           <Image
             src={wallSrc}
-            alt="Plain textured wall surface filling the card, no house or outdoor scene"
+            alt={`${wall.label} wall texture filling the card edge to edge, no house or outdoor scene`}
             fill
             sizes="(max-width: 1152px) 100vw, 1152px"
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/10" />
+          {wall.tint && (
+            <>
+              <div className="absolute inset-0" style={{ backgroundColor: wall.tint, mixBlendMode: 'color', opacity: 0.95 }} />
+              <div className="absolute inset-0" style={{ backgroundColor: wall.tint, opacity: 0.18 }} />
+            </>
+          )}
         </div>
 
         <div className="absolute left-1/2 top-1/2 w-[78%] max-w-[560px] -translate-x-1/2 -translate-y-1/2 sm:w-[64%] lg:w-[52%]">
-          <div className="relative h-[46vh] min-h-[280px] overflow-hidden border-[12px] border-[#f2efe9] shadow-[0_18px_50px_rgba(0,0,0,0.45),inset_0_2px_8px_rgba(0,0,0,0.25)] sm:h-[50vh] lg:h-[52vh] lg:max-h-[500px]">
+          {/* Reveal groove: a thin shadowed step between wall and frame,
+              so the window reads as set into the wall, not floating on it.
+              The wall texture runs continuously right up to this groove. */}
+          <div className="relative bg-black/30 p-[10px] shadow-[0_24px_50px_rgba(0,0,0,0.5)]">
+            <div className="relative h-[46vh] min-h-[280px] overflow-hidden border-[12px] border-[#f2efe9] shadow-[0_10px_30px_rgba(0,0,0,0.45),inset_0_4px_14px_rgba(0,0,0,0.4)] sm:h-[50vh] lg:h-[52vh] lg:max-h-[500px]">
             <div className="absolute inset-0">
               <Image
                 src={interiorSrc}
@@ -118,9 +118,13 @@ export default function WindowReveal() {
                 <div className="h-9 w-[3px] bg-gradient-to-b from-[#9aa0a5] to-[#5c6165] shadow" />
               </div>
             </div>
-            <div className="pointer-events-none absolute inset-0 border border-black/20 shadow-[inset_0_3px_10px_rgba(0,0,0,0.3)]" />
+            <div className="pointer-events-none absolute inset-0 border border-black/25 shadow-[inset_0_6px_18px_rgba(0,0,0,0.45),inset_0_-4px_12px_rgba(0,0,0,0.3)]" />
+            </div>
+            {/* Sill, part of the same assembly: no gap between frame and sill,
+                with a top edge shadow and a soft shadow falling onto the wall. */}
+            <div className="mx-auto -mt-1 h-4 w-[108%] max-w-[600px] -translate-x-[4%] rounded-b-md bg-[#e8e4dc] shadow-[0_12px_25px_rgba(0,0,0,0.4),inset_0_2px_3px_rgba(0,0,0,0.3)]" />
+            <div aria-hidden="true" className="mx-auto mt-1 h-5 w-[80%] rounded-full bg-black/35 blur-md" />
           </div>
-          <div className="mx-auto -mt-1 h-3 w-[112%] max-w-[620px] -translate-x-[5%] rounded-b-lg bg-[#f2efe9] shadow-[0_10px_25px_rgba(0,0,0,0.35)]" />
         </div>
 
         <div ref={headingRef} className="absolute inset-x-0 bottom-14 px-6 text-center opacity-0">

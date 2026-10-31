@@ -19,7 +19,7 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
     setDemoUser({ name: name.trim() || 'Welcome', email });
     const pending = getPendingSlug();
     if (pending) { addMyHome(pending); clearPendingSlug(); }
-    router.push('/browse');
+    router.push('/dashboard');
   };
 
   return (

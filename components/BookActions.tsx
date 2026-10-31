@@ -13,7 +13,7 @@ export default function BookActions({ slug }: { slug: string }) {
       return;
     }
     addMyHome(slug);
-    router.push('/my-homes');
+    router.push('/bookings');
   };
 
   const pay = () => {

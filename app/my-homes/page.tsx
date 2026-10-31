@@ -1,5 +1,5 @@
-import MyHomesClient from '@/components/MyHomesClient';
+import { redirect } from 'next/navigation';
 
 export default function MyHomesPage() {
-  return <MyHomesClient />;
+  redirect('/bookings');
 }
