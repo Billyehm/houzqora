@@ -106,12 +106,12 @@ export default function CameraZoom() {
           <h2 className="mx-auto max-w-xl text-3xl font-extrabold text-white drop-shadow sm:text-4xl">Explore homes worth coming home to.</h2>
           <Link href="/properties" className="btn-press mt-4 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
         </div>
-        <div aria-hidden="true" className="absolute bottom-2 left-1/2 z-20 -translate-x-1/2">
-          <div className="flex h-8 w-8 animate-bounce items-center justify-center rounded-full bg-black/45 text-white shadow ring-1 ring-white/40 motion-reduce:animate-none">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-          </div>
-        </div>
         <CardScrollbars leftThumbRef={leftThumbRef} rightThumbRef={rightThumbRef} />
+      </div>
+      <div aria-hidden="true" className="mt-4 flex justify-center">
+        <div className="flex h-8 w-8 animate-bounce items-center justify-center text-[#5E1220] motion-reduce:animate-none">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+        </div>
       </div>
     </section>
   );
