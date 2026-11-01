@@ -47,15 +47,25 @@ export default function BlueprintReveal() {
     }
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
-      const build = (end: string) => {
+      // Calibration: pin the whole section, not just the card, so the
+      // section padding and the arrow below the card are pinned with
+      // it and cannot drift while the animation plays. The section is
+      // viewport height and centred, so the card sits where it did
+      // before, about 12 percent down the viewport when pinned.
+      // End distance is card height times the multiplier, not a
+      // percentage of the trigger, so the timeline runs exactly 0 to 1
+      // over the pin distance even though the trigger is now taller.
+      const build = (multiplier: number) => {
         const tl = gsap.timeline({
           scrollTrigger: {
-            trigger: card,
-            start: 'top 12%',
-            end: `+=${end}`,
+            trigger: section,
+            start: 'top top',
+            end: () => `+=${card.offsetHeight * multiplier}`,
             scrub: true,
             pin: true,
+            pinSpacing: true,
             anticipatePin: 1,
+            invalidateOnRefresh: true,
           },
         });
         tl.fromTo(structuralRef.current, { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, transformOrigin: '50% 100%', ease: 'none' }, 0.15)
@@ -70,9 +80,9 @@ export default function BlueprintReveal() {
         // always sit at the same position and follow pinned progress.
         tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
       };
-      mm.add('(min-width: 1024px)', () => build('300%'));
-      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build('220%'));
-      mm.add('(max-width: 639px)', () => build('160%'));
+      mm.add('(min-width: 1024px)', () => build(3));
+      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build(2.2));
+      mm.add('(max-width: 639px)', () => build(1.6));
     }, section);
     return () => {
       ctx.revert();
@@ -82,10 +92,10 @@ export default function BlueprintReveal() {
   const svgProps = { viewBox: '0 0 800 520', className: 'h-full w-full', preserveAspectRatio: 'xMidYMid meet' } as const;
 
   return (
-    <section ref={sectionRef} aria-label="Blueprint to reality" className="relative mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+    <section ref={sectionRef} aria-label="Blueprint to reality" className="relative mx-auto flex min-h-[100svh] w-full max-w-6xl flex-col justify-center px-4 py-8 sm:px-6">
       <div
         ref={cardRef}
-        className="relative h-[62vh] min-h-[460px] overflow-hidden rounded-3xl border border-line bg-[#102a43] text-white shadow-[0_24px_60px_rgba(94,18,32,0.25)] sm:h-[68vh] sm:min-h-[500px] lg:h-[min(72vh,720px)]"
+        className="relative h-[62vh] min-h-[460px] w-full overflow-hidden rounded-3xl border border-line bg-[#102a43] text-white shadow-[0_24px_60px_rgba(94,18,32,0.25)] sm:h-[68vh] sm:min-h-[500px] lg:h-[min(72vh,720px)]"
       >
       <div ref={blueprintRef} className="absolute inset-0 p-4 sm:p-10">
         <svg {...svgProps}>
