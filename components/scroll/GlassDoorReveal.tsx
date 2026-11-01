@@ -4,9 +4,11 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { glassDoorInteriors, useRefreshPick } from '@/lib/scrollImages';
 import CardScrollbars from './CardScrollbars';
-import { attachCardLock } from './cardLock';
+
+gsap.registerPlugin(ScrollTrigger);
 
 
 /*
@@ -53,10 +55,19 @@ export default function GlassDoorReveal() {
       gsap.set([leftThumbRef.current, rightThumbRef.current], { yPercent: 300 });
       return;
     }
-    let releaseLock: (() => void) | null = null;
     const ctx = gsap.context(() => {
-      {
-        const tl = gsap.timeline({ paused: true });
+      const mm = gsap.matchMedia();
+      const build = (end: string) => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 12%',
+            end: `+=${end}`,
+            scrub: true,
+            pin: true,
+            anticipatePin: 1,
+          },
+        });
         // 0 percent closed, 25 percent narrow opening, 50 percent apart,
         // 75 percent mostly visible, 100 percent fully open and bunched at edges.
         tl.to(leftRef.current, { xPercent: -16, scaleX: 0.95, ease: 'none' }, 0)
@@ -72,11 +83,12 @@ export default function GlassDoorReveal() {
         // Both scrollbar thumbs share this one tween, so left and right
         // always sit at the same position and follow pinned progress.
         tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
-        releaseLock = attachCardLock(card, tl, () => (window.innerWidth >= 1024 ? 2 : window.innerWidth >= 640 ? 1.6 : 1.2), 'glass');
-      }
+      };
+      mm.add('(min-width: 1024px)', () => build('200%'));
+      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build('160%'));
+      mm.add('(max-width: 639px)', () => build('120%'));
     }, section);
     return () => {
-      releaseLock?.();
       ctx.revert();
     };
   }, []);

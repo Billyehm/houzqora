@@ -4,9 +4,11 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { windowInteriors, windowWalls, useRefreshPick } from '@/lib/scrollImages';
 import CardScrollbars from './CardScrollbars';
-import { attachCardLock } from './cardLock';
+
+gsap.registerPlugin(ScrollTrigger);
 
 
 /*
@@ -47,21 +49,31 @@ export default function WindowReveal() {
       gsap.set([leftThumbRef.current, rightThumbRef.current], { yPercent: 300 });
       return;
     }
-    let releaseLock: (() => void) | null = null;
     const ctx = gsap.context(() => {
-      {
-        const tl = gsap.timeline({ paused: true });
+      const mm = gsap.matchMedia();
+      const build = (end: string) => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 12%',
+            end: `+=${end}`,
+            scrub: true,
+            pin: true,
+            anticipatePin: 1,
+          },
+        });
         tl.to(paneRef.current, { yPercent: -110, ease: 'none' }, 0)
           .to(veilRef.current, { opacity: 0, ease: 'none' }, 0)
           .fromTo(headingRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, ease: 'none' }, 0.7);
         // Both scrollbar thumbs share this one tween, so left and right
         // always sit at the same position and follow pinned progress.
         tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
-        releaseLock = attachCardLock(card, tl, () => (window.innerWidth >= 1024 ? 2 : window.innerWidth >= 640 ? 1.6 : 1.2), 'window');
-      }
+      };
+      mm.add('(min-width: 1024px)', () => build('200%'));
+      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build('160%'));
+      mm.add('(max-width: 639px)', () => build('120%'));
     }, section);
     return () => {
-      releaseLock?.();
       ctx.revert();
     };
   }, []);
