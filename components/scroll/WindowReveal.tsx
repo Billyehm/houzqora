@@ -128,17 +128,53 @@ export default function WindowReveal() {
             </div>
             <div ref={veilRef} className="absolute inset-0 bg-velvetdark/25" />
             <div ref={paneRef} className="absolute inset-0">
-              <div className="absolute inset-0 bg-[#c9d6da]/95 shadow-[inset_0_0_24px_rgba(0,0,0,0.25)]" />
-              <div className="absolute inset-0 bg-gradient-to-b from-white/25 via-transparent to-black/20" />
-              <div className="pointer-events-none absolute inset-y-0 left-[30%] w-8 -skew-x-12 bg-white/25" />
-              <div className="absolute inset-[10px] border border-[#e8e4dc] shadow-[inset_0_1px_3px_rgba(0,0,0,0.3)]" />
-              <div className="absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 bg-[#f2efe9] shadow-[1px_0_2px_rgba(0,0,0,0.4),-1px_0_2px_rgba(255,255,255,0.6)]" />
-              <div className="absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 bg-[#f2efe9] shadow-[0_1px_2px_rgba(0,0,0,0.4),0_-1px_2px_rgba(255,255,255,0.6)]" />
-              <div className="absolute inset-0 border-[6px] border-[#f2efe9] shadow-[inset_0_2px_6px_rgba(0,0,0,0.35)]" />
-              <div className="absolute bottom-5 right-5 flex flex-col items-center">
-                <div className="h-2 w-4 rounded-full bg-[#6b7176] shadow" />
-                <div className="h-9 w-[3px] bg-gradient-to-b from-[#9aa0a5] to-[#5c6165] shadow" />
+              {/* Real glass, not a painted panel: mostly transparent, so the
+                  room shows dimly through it, with a slight blur and a
+                  faint cool tint, the way glass actually looks. */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    'linear-gradient(160deg, rgba(214,228,232,0.38) 0%, rgba(186,200,206,0.22) 35%, rgba(148,166,174,0.30) 70%, rgba(96,110,117,0.42) 100%)',
+                  backdropFilter: 'blur(1.5px) brightness(0.92)',
+                  WebkitBackdropFilter: 'blur(1.5px) brightness(0.92)',
+                }}
+              />
+              {/* Soft, blurred reflections, not a sharp cartoon stripe. */}
+              <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <div className="absolute -left-1/4 top-[-20%] h-[140%] w-[38%] rotate-[18deg] bg-white/20 blur-xl" />
+                <div className="absolute left-[55%] top-[-10%] h-[120%] w-[12%] rotate-[18deg] bg-white/10 blur-lg" />
+                <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/25 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/25 to-transparent" />
               </div>
+              {/* Muntin bars with depth: light on one edge, shadow on the other,
+                  so they read as real bars, not flat drawn lines. */}
+              <div
+                className="absolute inset-y-0 left-1/2 w-[6px] -translate-x-1/2 shadow-[1px_0_3px_rgba(0,0,0,0.45),-1px_0_2px_rgba(255,255,255,0.7)]"
+                style={{ background: 'linear-gradient(to right, #ffffff, #ddd7c9, #a9a294)' }}
+              />
+              <div
+                className="absolute inset-x-0 top-1/2 h-[6px] -translate-y-1/2 shadow-[0_1px_3px_rgba(0,0,0,0.45),0_-1px_2px_rgba(255,255,255,0.7)]"
+                style={{ background: 'linear-gradient(to bottom, #ffffff, #ddd7c9, #a9a294)' }}
+              />
+              {/* Sash frame with a bevel, and a thicker bottom rail, as a
+                  real sliding sash has. */}
+              <div className="absolute inset-0 border-[8px] border-[#f0ece3] shadow-[inset_0_2px_8px_rgba(0,0,0,0.4),inset_0_-2px_6px_rgba(0,0,0,0.25)]" />
+              <div
+                className="absolute inset-x-0 bottom-0 h-[18px] shadow-[0_-2px_6px_rgba(0,0,0,0.35),inset_0_1px_2px_rgba(255,255,255,0.8)]"
+                style={{ background: 'linear-gradient(to bottom, #f5f2ea, #d5cfc1)' }}
+              />
+              {/* Realistic lever handle: metal plate with screws, and a
+                  rounded lever, not a flat stick. */}
+              <div className="absolute bottom-6 right-6 flex items-center gap-1">
+                <div className="flex h-10 w-4 flex-col items-center justify-between rounded-sm py-1 shadow-[0_2px_5px_rgba(0,0,0,0.5)]" style={{ background: 'linear-gradient(to right, #e8ecef, #9aa0a5, #6d7276)' }}>
+                  <span className="h-1 w-1 rounded-full bg-[#4a4f53]" />
+                  <span className="h-1 w-1 rounded-full bg-[#4a4f53]" />
+                </div>
+                <div className="h-3 w-10 rounded-full shadow-[0_3px_6px_rgba(0,0,0,0.5)]" style={{ background: 'linear-gradient(to bottom, #f2f4f5, #aeb3b8, #6d7276)' }} />
+              </div>
+              {/* Glass edge: a faint green-grey tint and inner depth. */}
+              <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_30px_rgba(0,0,0,0.25),inset_0_0_4px_rgba(120,150,140,0.35)]" />
             </div>
             <div className="pointer-events-none absolute inset-0 border border-black/25 shadow-[inset_0_6px_18px_rgba(0,0,0,0.45),inset_0_-4px_12px_rgba(0,0,0,0.3)]" />
             </div>
