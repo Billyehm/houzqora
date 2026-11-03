@@ -76,12 +76,12 @@ export default function DiscountBanner() {
   // where a personal discount linked to the new account starts.
   if (!userId) {
     return (
-      <div className="sticky top-0 z-50 bg-velvet text-white">
-        <div className={`mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 py-2.5 text-sm sm:px-6 ${isAuthPage ? 'max-w-md' : 'max-w-6xl'}`}>
-          <span className="font-extrabold">Discount alert</span>
-          <span>{DISCOUNT_PERCENT}% inspection discount for 7 days</span>
-          <Link href="/signup" className="btn-press rounded-full bg-strawberry px-4 py-1.5 text-sm font-bold text-white">Claim and use</Link>
-          <button type="button" onClick={() => { setBannerDismissed(userId); setDismissed(true); }} aria-label="Close discount banner" className="btn-press rounded-full px-2 py-1 text-lg font-bold leading-none text-white/80">×</button>
+      <div className="bg-velvet text-white">
+        <div className={`mx-auto flex items-center justify-center gap-2 px-3 py-1.5 text-xs sm:gap-3 sm:px-6 sm:text-sm ${isAuthPage ? 'max-w-md' : 'max-w-6xl'}`}>
+          <span className="hidden shrink-0 whitespace-nowrap font-extrabold sm:inline">Discount alert</span>
+          <span className="min-w-0 truncate">{DISCOUNT_PERCENT}% inspection discount for 7 days</span>
+          <Link href="/signup" className="btn-press shrink-0 whitespace-nowrap rounded-full bg-strawberry px-3 py-1 text-xs font-bold text-white sm:px-4 sm:py-1.5 sm:text-sm">Claim and use</Link>
+          <button type="button" onClick={() => { setBannerDismissed(userId); setDismissed(true); }} aria-label="Close discount banner" className="btn-press shrink-0 rounded-full px-1 py-1 text-base font-bold leading-none text-white/80 sm:px-2 sm:text-lg">×</button>
         </div>
       </div>
     );
@@ -104,21 +104,21 @@ export default function DiscountBanner() {
   };
 
   return (
-    <div className="sticky top-0 z-50 bg-velvet text-white">
-      <div className={`mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 py-2.5 text-sm sm:px-6 ${isAuthPage ? 'max-w-md' : 'max-w-6xl'}`}>
+    <div className="bg-velvet text-white">
+      <div className={`mx-auto flex items-center justify-center gap-2 px-3 py-1.5 text-xs sm:gap-3 sm:px-6 sm:text-sm ${isAuthPage ? 'max-w-md' : 'max-w-6xl'}`}>
         {state.claimed ? (
           <>
-            <span className="rounded-full bg-strawberry px-3 py-1 text-xs font-extrabold">{DISCOUNT_PERCENT}% off active</span>
-            <span className="font-bold">Inspection discount active, ends in {formatCountdown(state, now)}</span>
+            <span className="shrink-0 whitespace-nowrap rounded-full bg-strawberry px-2 py-1 text-xs font-extrabold sm:px-3">{DISCOUNT_PERCENT}% off active</span>
+            <span className="min-w-0 truncate font-bold">Inspection discount active, ends in {formatCountdown(state, now)}</span>
           </>
         ) : (
           <>
-            <span className="font-extrabold">Discount alert</span>
-            <span>{DISCOUNT_PERCENT}% off inspection for new users, ends in {formatCountdown(state, now)}</span>
-            <button type="button" onClick={() => { void claim(); }} className="btn-press rounded-full bg-strawberry px-4 py-1.5 text-sm font-bold text-white">Claim and use</button>
+            <span className="hidden shrink-0 whitespace-nowrap font-extrabold sm:inline">Discount alert</span>
+            <span className="min-w-0 truncate">{DISCOUNT_PERCENT}% off inspection for new users, ends in {formatCountdown(state, now)}</span>
+            <button type="button" onClick={() => { void claim(); }} className="btn-press shrink-0 whitespace-nowrap rounded-full bg-strawberry px-3 py-1 text-xs font-bold text-white sm:px-4 sm:py-1.5 sm:text-sm">Claim and use</button>
           </>
         )}
-        <button type="button" onClick={dismiss} aria-label="Close discount banner" className="btn-press rounded-full px-2 py-1 text-lg font-bold leading-none text-white/80">×</button>
+        <button type="button" onClick={dismiss} aria-label="Close discount banner" className="btn-press shrink-0 rounded-full px-1 py-1 text-base font-bold leading-none text-white/80 sm:px-2 sm:text-lg">×</button>
       </div>
     </div>
   );

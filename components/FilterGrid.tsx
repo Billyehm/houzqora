@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import PropertyCard from './PropertyCard';
 import PlaceSearch from './PlaceSearch';
 import Pagination from './Pagination';
+import { supabase } from '@/lib/supabase';
+import { getCurrentUser } from '@/lib/queries';
 import type { Property } from '@/lib/properties';
 
 export default function FilterGrid({ properties }: { properties: Property[] }) {
@@ -14,6 +16,18 @@ export default function FilterGrid({ properties }: { properties: Property[] }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 4;
+
+  // Landing page gate: logged-out taps on a home open login.
+  // Starts gated, then opens up to detail once a session is found,
+  // and flips back on logout.
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    getCurrentUser().then((u) => setUserId(u ? u.id : null));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
 
   const places = useMemo(() => {
     const seen = new Set<string>();
@@ -94,7 +108,7 @@ export default function FilterGrid({ properties }: { properties: Property[] }) {
       ) : (
         <>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {pageHomes.map((p, i) => <PropertyCard key={p.slug} p={p} index={((page - 1) * pageSize + i) % 3} />)}
+            {pageHomes.map((p, i) => <PropertyCard key={p.slug} p={p} index={((page - 1) * pageSize + i) % 3} gateToLogin={!userId} />)}
           </div>
           <Pagination page={page} totalPages={totalPages} onPage={setPage} />
         </>

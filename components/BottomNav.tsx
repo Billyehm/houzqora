@@ -1,7 +1,10 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
+import { getCurrentUser } from '@/lib/queries';
 
 const tabs = [
   {
@@ -48,8 +51,20 @@ const tabs = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  // The nav bar never shows unless a user is logged in, on any
+  // page. It starts hidden, then appears once a session is found,
+  // and disappears again on logout.
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    getCurrentUser().then((u) => setUserId(u ? u.id : null));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
   // No bottom nav on the landing page, or on login and signup,
   // where it sits over an auth form that has nothing to do with it.
+  if (!userId) return null;
   if (pathname === '/' || pathname === '/login' || pathname === '/signup') return null;
   return (
     <nav
