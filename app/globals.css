@@ -2,9 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   background: #FFF5F3;
   color: #2A1A1D;
+}
+
+img,
+video {
+  max-width: 100%;
 }
 
 .dots-bg {

@@ -11,13 +11,13 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
   const p = getProperty(params.slug);
   if (!p) notFound();
   return (
-    <div>
-      <div className="mt-4 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <div>
+    <div className="min-w-0">
+      <div className="mt-4 grid min-w-0 gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="min-w-0">
           <Gallery images={p.images} title={p.title} />
-          <h1 className="mt-5 text-3xl font-extrabold text-velvet">{p.title}</h1>
-          <p className="mt-1 text-muted">{p.neighbourhood}, {p.city}</p>
-          <p className="mt-4 text-muted">{p.description}</p>
+          <h1 className="mt-5 break-words text-3xl font-extrabold text-velvet">{p.title}</h1>
+          <p className="mt-1 break-words text-muted">{p.neighbourhood}, {p.city}</p>
+          <p className="mt-4 break-words text-muted">{p.description}</p>
           <div className="mt-5 grid grid-cols-2 gap-3 text-sm lg:grid-cols-4">
             <div className="rounded-xl border border-line bg-white p-3"><p className="text-muted">Type</p><p className="font-bold">{p.type}</p></div>
             <div className="rounded-xl border border-line bg-white p-3"><p className="text-muted">Bedrooms</p><p className="font-bold">{p.bedrooms}</p></div>
@@ -33,7 +33,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
             {p.amenities.map((a) => <li key={a} className="rounded-full border border-line bg-white px-3 py-1 text-sm">{a}</li>)}
           </ul>
         </div>
-        <aside className="h-fit self-start rounded-2xl bg-velvet p-5 text-white lg:sticky lg:top-6">
+        <aside className="h-fit min-w-0 self-start rounded-2xl bg-velvet p-5 text-white lg:sticky lg:top-6">
           <p className="text-2xl font-extrabold">{eur(p.rent)} <span className="text-sm font-semibold text-white/70">/ month</span></p>
           <div className="mt-4 space-y-2 rounded-xl bg-white p-4 text-sm text-ink">
             <p className="flex justify-between"><span>Monthly rent</span><b>{eur(p.rent)}</b></p>
