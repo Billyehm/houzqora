@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import PropertyCard from './PropertyCard';
+import PlaceSearch from './PlaceSearch';
+import Pagination from './Pagination';
 import BottomNav from './BottomNav';
 import { eur, properties } from '@/lib/properties';
 import { getDemoUser, getSavedSlugs, toggleSavedSlug, type DemoUser } from '@/lib/demo';
@@ -21,11 +23,28 @@ export default function DashboardClient() {
   const [minRent, setMinRent] = useState('');
   const [maxRent, setMaxRent] = useState('');
   const [saved, setSaved] = useState<string[]>([]);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 4;
 
   useEffect(() => {
     setUser(getDemoUser());
     setSaved(getSavedSlugs());
     setLoaded(true);
+  }, []);
+
+  const places = useMemo(() => {
+    const seen = new Set<string>();
+    const list: string[] = [];
+    properties.forEach((p) => {
+      [p.city, p.neighbourhood].forEach((place) => {
+        if (!seen.has(place)) {
+          seen.add(place);
+          list.push(place);
+        }
+      });
+    });
+    return list;
   }, []);
 
   const filtered = useMemo(() => {
@@ -41,6 +60,13 @@ export default function DashboardClient() {
       return true;
     });
   }, [search, city, beds, minRent, maxRent]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, city, beds, minRent, maxRent]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageHomes = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   if (!loaded) return <p className="mt-6">Loading dashboard...</p>;
 
@@ -74,15 +100,15 @@ export default function DashboardClient() {
       <p className="mt-2 text-xl font-bold">Welcome, {firstName}</p>
 
       <div className="mt-5 rounded-2xl border border-line bg-white p-4 shadow-[0_8px_24px_rgba(94,18,32,0.08)]">
-        <label className="block text-xs font-extrabold uppercase tracking-wide text-muted">
-          Search
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Place or home name"
-            className="mt-1 block w-full rounded-xl border border-line px-3 py-2.5 text-sm font-bold text-ink outline-none"
-          />
-        </label>
+        <button type="button" onClick={() => setFiltersOpen((o) => !o)} className="btn-press flex w-full items-center justify-between text-left" aria-expanded={filtersOpen}>
+          <span className="text-sm font-extrabold text-velvet">Filters</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={filtersOpen ? 'rotate-180 text-velvet' : 'text-velvet'}><path d="M6 9l6 6 6-6" /></svg>
+        </button>
+        {filtersOpen && (
+          <>
+        <div className="mt-3">
+          <PlaceSearch value={search} onChange={setSearch} places={places} />
+        </div>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <label className="block text-xs font-extrabold uppercase tracking-wide text-muted">
             Location
@@ -118,6 +144,8 @@ export default function DashboardClient() {
           </label>
         </div>
         <button onClick={clearAll} className="btn-press mt-4 rounded-full border border-line px-4 py-2 text-sm font-bold text-velvet">Clear filters</button>
+          </>
+        )}
       </div>
 
       <p className="mt-6 text-sm font-extrabold text-velvet">{filtered.length} homes</p>
@@ -127,12 +155,13 @@ export default function DashboardClient() {
           <button onClick={clearAll} className="btn-press mt-4 rounded-full bg-strawberry px-5 py-3 font-bold text-white">Clear filters</button>
         </div>
       ) : (
+        <>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((p, i) => (
+          {pageHomes.map((p, i) => (
             <PropertyCard
               key={p.slug}
               p={p}
-              index={i % 3}
+              index={((page - 1) * pageSize + i) % 3}
               showSave
               saved={saved.includes(p.slug)}
               onToggleSave={() => {
@@ -142,6 +171,8 @@ export default function DashboardClient() {
             />
           ))}
         </div>
+        <Pagination page={page} totalPages={totalPages} onPage={setPage} />
+        </>
       )}
       <BottomNav />
     </div>
