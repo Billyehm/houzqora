@@ -7,7 +7,6 @@ export default function Footer() {
         <p className="font-extrabold tracking-[0.12em]">HOUZQORA</p>
         <p className="mt-2 max-w-xl text-sm text-white/70">
           Verified rentals in the Netherlands. Clear fees, honest next steps.
-          Paying an inspection fee does not reserve a home.
         </p>
         <div className="mt-4 flex flex-wrap gap-4 text-sm text-white/80">
           <Link href="/how-it-works">How it works</Link>

@@ -18,7 +18,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
           <h1 className="mt-5 text-3xl font-extrabold text-velvet">{p.title}</h1>
           <p className="mt-1 text-muted">{p.neighbourhood}, {p.city}</p>
           <p className="mt-4 text-muted">{p.description}</p>
-          <div className="mt-5 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+          <div className="mt-5 grid grid-cols-2 gap-3 text-sm lg:grid-cols-4">
             <div className="rounded-xl border border-line bg-white p-3"><p className="text-muted">Type</p><p className="font-bold">{p.type}</p></div>
             <div className="rounded-xl border border-line bg-white p-3"><p className="text-muted">Bedrooms</p><p className="font-bold">{p.bedrooms}</p></div>
             <div className="rounded-xl border border-line bg-white p-3"><p className="text-muted">Bathrooms</p><p className="font-bold">{p.bathrooms}</p></div>
@@ -26,13 +26,14 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
             <div className="rounded-xl border border-line bg-white p-3"><p className="text-muted">Size</p><p className="font-bold">{p.sizeM2} m2</p></div>
             <div className="rounded-xl border border-line bg-white p-3"><p className="text-muted">Furnishing</p><p className="font-bold">{p.furnished}</p></div>
             <div className="rounded-xl border border-line bg-white p-3"><p className="text-muted">Parking</p><p className="font-bold">{p.parking}</p></div>
+            <div className="rounded-xl border border-line bg-white p-3"><p className="text-muted">City</p><p className="font-bold">{p.city}</p></div>
           </div>
           <h2 className="mt-6 text-xl font-extrabold text-velvet">Amenities</h2>
           <ul className="mt-2 flex flex-wrap gap-2">
             {p.amenities.map((a) => <li key={a} className="rounded-full border border-line bg-white px-3 py-1 text-sm">{a}</li>)}
           </ul>
         </div>
-        <aside className="h-fit rounded-2xl bg-velvet p-5 text-white">
+        <aside className="h-fit self-start rounded-2xl bg-velvet p-5 text-white lg:sticky lg:top-6">
           <p className="text-2xl font-extrabold">{eur(p.rent)} <span className="text-sm font-semibold text-white/70">/ month</span></p>
           <div className="mt-4 space-y-2 rounded-xl bg-white p-4 text-sm text-ink">
             <p className="flex justify-between"><span>Monthly rent</span><b>{eur(p.rent)}</b></p>
