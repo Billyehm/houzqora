@@ -47,6 +47,10 @@ export default function Header() {
   // header narrows to that same column instead of stretching wide.
   const isAuthPage = pathname === '/login' || pathname === '/signup';
 
+  // Log out lives only on Dashboard. On every other page a logged
+  // in user sees just the logo in the header, with no Log out
+  // button, so Dashboard is the one place to sign out from.
+
   return (
     <header className={`mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 ${isAuthPage ? 'max-w-md' : 'max-w-6xl'}`}>
       <Link href="/" className="text-lg font-extrabold tracking-[0.12em] text-velvet">
@@ -55,7 +59,9 @@ export default function Header() {
       {!isAdminPage && (
       <nav className="flex flex-wrap items-center gap-3">
         {user ? (
-          <button type="button" onClick={logOut} disabled={loggingOut} className="btn-press flex items-center gap-2 rounded-full bg-velvet px-5 py-2.5 text-sm font-bold text-white shadow-[0_2px_0_rgba(94,18,32,0.3)] disabled:opacity-60">{loggingOut && <Spinner className="h-3.5 w-3.5" />}Log out</button>
+          pathname === '/dashboard' ? (
+            <button type="button" onClick={logOut} disabled={loggingOut} className="btn-press flex items-center gap-2 rounded-full bg-velvet px-5 py-2.5 text-sm font-bold text-white shadow-[0_2px_0_rgba(94,18,32,0.3)] disabled:opacity-60">{loggingOut && <Spinner className="h-3.5 w-3.5" />}Log out</button>
+          ) : null
         ) : (
           <>
             <Link href="/login" className="btn-press rounded-full border border-line bg-white px-5 py-2.5 text-sm font-bold text-velvet shadow-sm">Log in</Link>

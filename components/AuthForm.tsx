@@ -6,13 +6,13 @@ import { supabase } from '@/lib/supabase';
 import { clearPendingSlug, ensureProfile, fetchBookings, getCurrentUser, getPendingSlug, upsertBooking } from '@/lib/queries';
 import PasswordField from '@/components/PasswordField';
 import Spinner from '@/components/Spinner';
-import CountryCodePicker from '@/components/CountryCodePicker';
+import CountryCodePicker, { COUNTRY_CODES, type CountryCode } from '@/components/CountryCodePicker';
 
 export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'login'; initialEmail?: string }) {
   const router = useRouter();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [countryCode, setCountryCode] = useState('31');
+  const [country, setCountry] = useState<CountryCode>(COUNTRY_CODES[0]);
   const [email, setEmail] = useState(initialEmail ?? '');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,9 +34,9 @@ export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'log
       const digits = mode === 'signup' ? phone.replace(/[\s-]/g, '').replace(/^\+/, '') : '';
       const fullPhone = !digits
         ? ''
-        : digits.startsWith(countryCode)
+        : digits.startsWith(country.code)
           ? `+${digits}`
-          : `+${countryCode} ${digits}`;
+          : `+${country.code} ${digits}`;
       if (mode === 'signup') {
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
@@ -88,7 +88,7 @@ export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'log
           <label className="mt-4 block text-xs font-extrabold text-velvet">Full name<input value={name} onChange={(e) => setName(e.target.value)} disabled={busy} placeholder="e.g. Anna de Vries" className="mt-1 block w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none" /></label>
           <span className="mt-3 block text-xs font-extrabold text-velvet">Phone
             <span className="mt-1 flex items-stretch gap-2">
-              <CountryCodePicker code={countryCode} onChange={setCountryCode} disabled={busy} />
+              <CountryCodePicker country={country} onChange={setCountry} disabled={busy} />
               <input value={phone} onChange={(e) => setPhone(e.target.value)} disabled={busy} placeholder="6 00 00 00 00" className="block w-full min-w-0 flex-1 rounded-xl border border-line px-3 py-2.5 text-sm outline-none" />
             </span>
           </span>
@@ -96,6 +96,11 @@ export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'log
       )}
       <label className="mt-3 block text-xs font-extrabold text-velvet">Email<input value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} placeholder="you@example.com" className="mt-1 block w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none" /></label>
       <PasswordField value={password} onChange={setPassword} placeholder="At least 6 characters" disabled={busy} />
+      {mode === 'login' && (
+        <p className="mt-2 text-right text-sm">
+          <a href="/forgot-password" className="font-bold text-velvet">Forgot password?</a>
+        </p>
+      )}
       {error && <p className="mt-3 text-sm font-bold text-strawberry">{error}</p>}
       <button onClick={submit} disabled={busy} className="btn-press mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">
         {busy && <Spinner />}

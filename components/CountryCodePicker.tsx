@@ -5,43 +5,43 @@ import { useMemo, useState } from 'react';
 // Big countries whose currency is a dollar or the euro. The plus
 // sign is constant: the button always shows +code, the user never
 // types it, and the phone box beside it holds only the local number.
-export type CountryCode = { name: string; code: string };
+export type CountryCode = { name: string; code: string; flag: string };
 
 export const COUNTRY_CODES: CountryCode[] = [
-  { name: 'Netherlands', code: '31' },
-  { name: 'Germany', code: '49' },
-  { name: 'France', code: '33' },
-  { name: 'Spain', code: '34' },
-  { name: 'Italy', code: '39' },
-  { name: 'Ireland', code: '353' },
-  { name: 'Belgium', code: '32' },
-  { name: 'Luxembourg', code: '352' },
-  { name: 'Austria', code: '43' },
-  { name: 'Portugal', code: '351' },
-  { name: 'Finland', code: '358' },
-  { name: 'Greece', code: '30' },
-  { name: 'Slovakia', code: '421' },
-  { name: 'Slovenia', code: '386' },
-  { name: 'Estonia', code: '372' },
-  { name: 'Latvia', code: '371' },
-  { name: 'Lithuania', code: '370' },
-  { name: 'Malta', code: '356' },
-  { name: 'Cyprus', code: '357' },
-  { name: 'United States', code: '1' },
-  { name: 'Canada', code: '1' },
-  { name: 'Australia', code: '61' },
-  { name: 'New Zealand', code: '64' },
-  { name: 'Singapore', code: '65' },
-  { name: 'Hong Kong', code: '852' },
+  { name: 'Netherlands', code: '31', flag: '🇳🇱' },
+  { name: 'Germany', code: '49', flag: '🇩🇪' },
+  { name: 'France', code: '33', flag: '🇫🇷' },
+  { name: 'Spain', code: '34', flag: '🇪🇸' },
+  { name: 'Italy', code: '39', flag: '🇮🇹' },
+  { name: 'Ireland', code: '353', flag: '🇮🇪' },
+  { name: 'Belgium', code: '32', flag: '🇧🇪' },
+  { name: 'Luxembourg', code: '352', flag: '🇱🇺' },
+  { name: 'Austria', code: '43', flag: '🇦🇹' },
+  { name: 'Portugal', code: '351', flag: '🇵🇹' },
+  { name: 'Finland', code: '358', flag: '🇫🇮' },
+  { name: 'Greece', code: '30', flag: '🇬🇷' },
+  { name: 'Slovakia', code: '421', flag: '🇸🇰' },
+  { name: 'Slovenia', code: '386', flag: '🇸🇮' },
+  { name: 'Estonia', code: '372', flag: '🇪🇪' },
+  { name: 'Latvia', code: '371', flag: '🇱🇻' },
+  { name: 'Lithuania', code: '370', flag: '🇱🇹' },
+  { name: 'Malta', code: '356', flag: '🇲🇹' },
+  { name: 'Cyprus', code: '357', flag: '🇨🇾' },
+  { name: 'United States', code: '1', flag: '🇺🇸' },
+  { name: 'Canada', code: '1', flag: '🇨🇦' },
+  { name: 'Australia', code: '61', flag: '🇦🇺' },
+  { name: 'New Zealand', code: '64', flag: '🇳🇿' },
+  { name: 'Singapore', code: '65', flag: '🇸🇬' },
+  { name: 'Hong Kong', code: '852', flag: '🇭🇰' },
 ];
 
 export default function CountryCodePicker({
-  code,
+  country,
   onChange,
   disabled,
 }: {
-  code: string;
-  onChange: (code: string) => void;
+  country: CountryCode;
+  onChange: (country: CountryCode) => void;
   disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -66,7 +66,8 @@ export default function CountryCodePicker({
         aria-expanded={open}
         className="btn-press flex h-full items-center gap-1 rounded-xl border border-line bg-cream px-3 py-2.5 text-sm font-bold text-velvet disabled:opacity-60"
       >
-        +{code}
+        <span aria-hidden="true">{country.flag}</span>
+        +{country.code}
         <span aria-hidden="true">▾</span>
       </button>
       {open && (
@@ -88,10 +89,10 @@ export default function CountryCodePicker({
                 <button
                   key={`${c.name}-${c.code}`}
                   type="button"
-                  onClick={() => { onChange(c.code); setOpen(false); setQuery(''); }}
-                  className={`btn-press flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm ${c.code === code ? 'bg-cream font-bold text-velvet' : 'text-velvet'}`}
+                  onClick={() => { onChange(c); setOpen(false); setQuery(''); }}
+                  className={`btn-press flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm ${c.name === country.name && c.code === country.code ? 'bg-cream font-bold text-velvet' : 'text-velvet'}`}
                 >
-                  <span>{c.name}</span>
+                  <span><span aria-hidden="true">{c.flag}</span> {c.name}</span>
                   <span className="font-bold">+{c.code}</span>
                 </button>
               ))}
