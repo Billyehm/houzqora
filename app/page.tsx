@@ -43,8 +43,6 @@ export default async function Home() {
         <p className="mx-auto mt-2 max-w-md text-muted">Clear rent in euros per month, a clear inspection fee, and a clear amount to secure the home.</p>
       </section>
 
-      <GlassDoorReveal />
-
       <section className="mt-12">
         <h2 className="text-2xl font-extrabold text-velvet">How it works</h2>
         <div className="mt-3 border-t-[3px] border-dotted border-strawberry/70" />
@@ -72,6 +70,8 @@ export default async function Home() {
           <div><p className="font-bold">What happens next</p><p className="mt-1 text-sm text-muted">After payment, you pick a viewing slot in My homes, view the home, then decide.</p></div>
         </div>
       </section>
+
+      <GlassDoorReveal />
     </div>
   );
 }

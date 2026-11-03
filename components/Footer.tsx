@@ -1,8 +1,15 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
+  const pathname = usePathname();
+  // On login and signup the form is a narrow centred column, so the
+  // footer narrows to that same column instead of stretching wide.
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
   return (
-    <footer className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">
+    <footer className={`mx-auto px-4 pb-10 sm:px-6 ${isAuthPage ? 'max-w-md' : 'max-w-6xl'}`}>
       <div className="rounded-2xl bg-velvetdark p-5 text-white">
         <p className="font-extrabold tracking-[0.12em]">HOUZQORA</p>
         <p className="mt-2 max-w-xl text-sm text-white/70">

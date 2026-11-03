@@ -36,8 +36,12 @@ export default function Header() {
   // Sign up, even to a logged-in admin. Hide the header buttons there.
   const isAdminPage = pathname === '/admin';
 
+  // On login and signup the form is a narrow centred column, so the
+  // header narrows to that same column instead of stretching wide.
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
+
   return (
-    <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
+    <header className={`mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 ${isAuthPage ? 'max-w-md' : 'max-w-6xl'}`}>
       <Link href="/" className="text-lg font-extrabold tracking-[0.12em] text-velvet">
         HOUZ<span className="text-strawberry">QORA</span>
       </Link>

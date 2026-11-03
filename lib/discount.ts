@@ -10,11 +10,12 @@
 // Rules:
 // - The 7 day window starts the first time this user sees the banner.
 // - "Claim and use" activates the discount for the rest of that window.
-// - The X before claiming cancels the offer for that user, the banner
-//   does not come back. The X after claiming only hides the banner,
-//   the discount stays active until the window ends.
-// - After the window ends the banner disappears and fees go back to
-//   full price.
+// - The X only hides the banner for this session. It does not cancel
+//   the offer: the banner comes back when the user leaves the app and
+//   comes back in a new session, and the offer always stays visible
+//   in Bookings until the window ends.
+// - After the window ends the banner and the Bookings card disappear
+//   and fees go back to full price.
 
 export const DISCOUNT_PERCENT = 30;
 export const DISCOUNT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
@@ -22,11 +23,35 @@ export const DISCOUNT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 export type DiscountState = {
   startsAt: number;
   claimed: boolean;
-  dismissed: boolean;
 };
 
 export function discountKey(userId: string | null): string {
   return `houzqora_discount_${userId ?? 'guest'}`;
+}
+
+function dismissedKey(userId: string | null): string {
+  return `houzqora_discount_dismissed_${userId ?? 'guest'}`;
+}
+
+// Session only, so closing the tab and coming back later shows the
+// banner again. Older records may still carry a dismissed flag, it
+// is ignored here on purpose.
+export function isBannerDismissed(userId: string | null): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.sessionStorage.getItem(dismissedKey(userId)) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function setBannerDismissed(userId: string | null): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(dismissedKey(userId), '1');
+  } catch {
+    // Session storage blocked: the banner just stays visible.
+  }
 }
 
 export function loadDiscount(userId: string | null): DiscountState | null {
@@ -36,7 +61,7 @@ export function loadDiscount(userId: string | null): DiscountState | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as DiscountState;
     if (typeof parsed.startsAt !== 'number') return null;
-    return { startsAt: parsed.startsAt, claimed: !!parsed.claimed, dismissed: !!parsed.dismissed };
+    return { startsAt: parsed.startsAt, claimed: !!parsed.claimed };
   } catch {
     return null;
   }

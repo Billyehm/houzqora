@@ -48,7 +48,9 @@ const tabs = [
 
 export default function BottomNav() {
   const pathname = usePathname();
-  if (pathname === '/') return null;
+  // No bottom nav on the landing page, or on login and signup,
+  // where it sits over an auth form that has nothing to do with it.
+  if (pathname === '/' || pathname === '/login' || pathname === '/signup') return null;
   return (
     <nav
       aria-label="Sections"

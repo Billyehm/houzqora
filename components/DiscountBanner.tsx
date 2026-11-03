@@ -1,20 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { getCurrentUser } from '@/lib/queries';
 import {
   DISCOUNT_PERCENT,
   formatCountdown,
+  isBannerDismissed,
   isExpired,
   loadDiscount,
   saveDiscount,
+  setBannerDismissed,
   type DiscountState,
 } from '@/lib/discount';
 
 export default function DiscountBanner() {
+  const pathname = usePathname();
   const [userId, setUserId] = useState<string | null>(null);
   const [userChecked, setUserChecked] = useState(false);
   const [state, setState] = useState<DiscountState | null>(null);
+  const [dismissed, setDismissed] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -30,12 +35,13 @@ export default function DiscountBanner() {
   // First sight for this user starts the 7 day window.
   useEffect(() => {
     if (!userChecked) return;
+    setDismissed(isBannerDismissed(userId));
     const existing = loadDiscount(userId);
     if (existing) {
       setState(existing);
       return;
     }
-    const fresh: DiscountState = { startsAt: Date.now(), claimed: false, dismissed: false };
+    const fresh: DiscountState = { startsAt: Date.now(), claimed: false };
     saveDiscount(userId, fresh);
     setState(fresh);
   }, [userChecked, userId]);
@@ -46,7 +52,7 @@ export default function DiscountBanner() {
     return () => clearInterval(timer);
   }, []);
 
-  if (!state || state.dismissed || isExpired(state, now)) return null;
+  if (!state || dismissed || isExpired(state, now)) return null;
 
   const claim = () => {
     const next = { ...state, claimed: true };
@@ -55,16 +61,21 @@ export default function DiscountBanner() {
     window.dispatchEvent(new Event('houzqora-discount-change'));
   };
 
+  // Session only: closing the tab and coming back later shows the
+  // banner again, and the offer stays in Bookings until it expires.
   const dismiss = () => {
-    const next = { ...state, dismissed: true };
-    saveDiscount(userId, next);
-    setState(next);
+    setBannerDismissed(userId);
+    setDismissed(true);
     window.dispatchEvent(new Event('houzqora-discount-change'));
   };
 
+  // On login and signup the form is a narrow centred column, so the
+  // banner narrows to that same column instead of stretching wide.
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
+
   return (
     <div className="sticky top-0 z-50 bg-velvet text-white">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 py-2.5 text-sm sm:px-6">
+      <div className={`mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 py-2.5 text-sm sm:px-6 ${isAuthPage ? 'max-w-md' : 'max-w-6xl'}`}>
         {state.claimed ? (
           <>
             <span className="rounded-full bg-strawberry px-3 py-1 text-xs font-extrabold">{DISCOUNT_PERCENT}% off active</span>

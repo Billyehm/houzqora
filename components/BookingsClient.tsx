@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { eur } from '@/lib/properties';
 import { fetchBookings, fetchProperties, getCurrentUser, upsertBooking, type AppUser, type BookingState } from '@/lib/queries';
 import InspectionFee from '@/components/InspectionFee';
+import DiscountBookingsCard from '@/components/DiscountBookingsCard';
 import type { Property } from '@/lib/properties';
 
 export default function BookingsClient() {
@@ -50,6 +51,7 @@ export default function BookingsClient() {
   return (
     <div>
       <h1 className="mt-4 text-3xl font-extrabold text-velvet">Bookings</h1>
+      <DiscountBookingsCard />
       {entries.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-line bg-white p-6">
           <h2 className="text-xl font-extrabold text-velvet">No active bookings</h2>
