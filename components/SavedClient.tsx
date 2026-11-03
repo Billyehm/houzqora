@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import PropertyCard from './PropertyCard';
-import { fetchProperties, fetchSavedSlugs, getCurrentUser, toggleSavedSlug, type AppUser } from '@/lib/queries';
+import { fetchAllProperties, fetchSavedSlugs, getCurrentUser, toggleSavedSlug, type AppUser } from '@/lib/queries';
 import type { Property } from '@/lib/properties';
 
 export default function SavedClient() {
@@ -16,7 +16,7 @@ export default function SavedClient() {
     (async () => {
       const u = await getCurrentUser();
       setUser(u);
-      setAllProperties(await fetchProperties());
+      setAllProperties(await fetchAllProperties());
       if (u) setSaved(await fetchSavedSlugs(u.id));
       setLoaded(true);
     })();

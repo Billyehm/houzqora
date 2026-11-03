@@ -1,15 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import { getCurrentUser } from '@/lib/queries';
 import {
   DISCOUNT_PERCENT,
+  claimDiscountState,
+  fetchDiscountState,
   formatCountdown,
   isBannerDismissed,
   isExpired,
-  loadDiscount,
-  saveDiscount,
   setBannerDismissed,
   type DiscountState,
 } from '@/lib/discount';
@@ -22,6 +24,10 @@ export default function DiscountBanner() {
   const [dismissed, setDismissed] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
+  // Re-check on login and logout, because the banner lives in the
+  // layout and does not remount when auth changes. Signed out it
+  // shows the generic advert, signed in it shows the personal
+  // discount linked to that account.
   useEffect(() => {
     let cancelled = false;
     getCurrentUser().then((u) => {
@@ -29,21 +35,28 @@ export default function DiscountBanner() {
       setUserId(u ? u.id : null);
       setUserChecked(true);
     });
-    return () => { cancelled = true; };
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+      setUserChecked(true);
+    });
+    return () => {
+      cancelled = true;
+      data.subscription.unsubscribe();
+    };
   }, []);
 
-  // First sight for this user starts the 7 day window.
   useEffect(() => {
     if (!userChecked) return;
     setDismissed(isBannerDismissed(userId));
-    const existing = loadDiscount(userId);
-    if (existing) {
-      setState(existing);
+    if (!userId) {
+      setState(null);
       return;
     }
-    const fresh: DiscountState = { startsAt: Date.now(), claimed: false };
-    saveDiscount(userId, fresh);
-    setState(fresh);
+    let cancelled = false;
+    fetchDiscountState(userId).then((s) => {
+      if (!cancelled) setState(s);
+    });
+    return () => { cancelled = true; };
   }, [userChecked, userId]);
 
   // Tick the countdown every second.
@@ -52,12 +65,33 @@ export default function DiscountBanner() {
     return () => clearInterval(timer);
   }, []);
 
-  if (!state || dismissed || isExpired(state, now)) return null;
+  // On login and signup the form is a narrow centred column, so the
+  // banner narrows to that same column instead of stretching wide.
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
 
-  const claim = () => {
-    const next = { ...state, claimed: true };
-    saveDiscount(userId, next);
-    setState(next);
+  if (!userChecked || dismissed) return null;
+
+  // Signed out: no user to link a discount to, so this is only a
+  // generic advert for the 7 day offer. Claiming it goes to signup,
+  // where a personal discount linked to the new account starts.
+  if (!userId) {
+    return (
+      <div className="sticky top-0 z-50 bg-velvet text-white">
+        <div className={`mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 py-2.5 text-sm sm:px-6 ${isAuthPage ? 'max-w-md' : 'max-w-6xl'}`}>
+          <span className="font-extrabold">Discount alert</span>
+          <span>{DISCOUNT_PERCENT}% inspection discount for 7 days</span>
+          <Link href="/signup" className="btn-press rounded-full bg-strawberry px-4 py-1.5 text-sm font-bold text-white">Claim and use</Link>
+          <button type="button" onClick={() => { setBannerDismissed(userId); setDismissed(true); }} aria-label="Close discount banner" className="btn-press rounded-full px-2 py-1 text-lg font-bold leading-none text-white/80">×</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!state || isExpired(state, now)) return null;
+
+  const claim = async () => {
+    const next = await claimDiscountState(userId);
+    if (next) setState(next);
     window.dispatchEvent(new Event('houzqora-discount-change'));
   };
 
@@ -68,10 +102,6 @@ export default function DiscountBanner() {
     setDismissed(true);
     window.dispatchEvent(new Event('houzqora-discount-change'));
   };
-
-  // On login and signup the form is a narrow centred column, so the
-  // banner narrows to that same column instead of stretching wide.
-  const isAuthPage = pathname === '/login' || pathname === '/signup';
 
   return (
     <div className="sticky top-0 z-50 bg-velvet text-white">
@@ -85,7 +115,7 @@ export default function DiscountBanner() {
           <>
             <span className="font-extrabold">Discount alert</span>
             <span>{DISCOUNT_PERCENT}% off inspection for new users, ends in {formatCountdown(state, now)}</span>
-            <button type="button" onClick={claim} className="btn-press rounded-full bg-strawberry px-4 py-1.5 text-sm font-bold text-white">Claim and use</button>
+            <button type="button" onClick={() => { void claim(); }} className="btn-press rounded-full bg-strawberry px-4 py-1.5 text-sm font-bold text-white">Claim and use</button>
           </>
         )}
         <button type="button" onClick={dismiss} aria-label="Close discount banner" className="btn-press rounded-full px-2 py-1 text-lg font-bold leading-none text-white/80">×</button>

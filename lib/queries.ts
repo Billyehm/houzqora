@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 import { properties as seedProperties, getProperty as getSeedProperty, type Property } from './properties';
 
-export type AppUser = { id: string; name: string; email: string };
+export type AppUser = { id: string; name: string; email: string; phone?: string };
 export type BookingState = { paid: boolean; slot: string };
 
 // --- Properties: Supabase first, seed list only if the table is not
@@ -11,7 +11,7 @@ type PropertyRow = {
   slug: string; title: string; city: string; neighbourhood: string; type: string;
   bedrooms: number; bathrooms: number; toilets: number; size_m2: number;
   rent: number; fee: number; securing: number; furnished: string; parking: string;
-  description: string; amenities: string[]; images: string[];
+  description: string; amenities: string[]; images: string[]; available?: boolean;
 };
 
 function toProperty(row: PropertyRow): Property {
@@ -21,10 +21,25 @@ function toProperty(row: PropertyRow): Property {
     sizeM2: row.size_m2, rent: row.rent, fee: row.fee, securing: row.securing,
     furnished: row.furnished, parking: row.parking, description: row.description,
     amenities: row.amenities || [], images: row.images || [],
+    available: row.available ?? true,
   };
 }
 
+// Public listings: only homes marked available in the admin panel.
 export async function fetchProperties(): Promise<Property[]> {
+  try {
+    const { data, error } = await supabase.from('properties').select('*').eq('available', true).order('created_at');
+    if (error || !data || data.length === 0) return seedProperties;
+    return data.map(toProperty);
+  } catch {
+    return seedProperties;
+  }
+}
+
+// Admin, bookings and saved homes: every home, including unavailable
+// ones, so an existing booking or saved home never vanishes and the
+// admin can turn a home available again.
+export async function fetchAllProperties(): Promise<Property[]> {
   try {
     const { data, error } = await supabase.from('properties').select('*').order('created_at');
     if (error || !data || data.length === 0) return seedProperties;
@@ -38,7 +53,9 @@ export async function fetchProperty(slug: string): Promise<Property | undefined>
   try {
     const { data, error } = await supabase.from('properties').select('*').eq('slug', slug).single();
     if (error || !data) return getSeedProperty(slug);
-    return toProperty(data as PropertyRow);
+    const property = toProperty(data as PropertyRow);
+    if (!property.available) return undefined;
+    return property;
   } catch {
     return getSeedProperty(slug);
   }
@@ -51,16 +68,49 @@ export async function getCurrentUser(): Promise<AppUser | null> {
   const u = data.user;
   if (!u) return null;
   const meta = (u.user_metadata || {}) as Record<string, string>;
-  return {
+  const fallback = {
     id: u.id,
     name: meta.name || u.email?.split('@')[0] || 'Welcome',
     email: u.email || '',
+    phone: meta.phone || '',
   };
+  // The profiles table is the source of truth for name and email
+  // once a profile row exists, instead of only the login account
+  // metadata. Fall back to metadata if there is no row yet, or if
+  // the profiles query fails, so login never breaks on it.
+  try {
+    const { data: profile, error } = await supabase.from('profiles').select('name, email, phone').eq('id', u.id).single();
+    if (error || !profile) return fallback;
+    return {
+      id: u.id,
+      name: profile.name?.trim() ? profile.name : fallback.name,
+      email: profile.email?.trim() ? profile.email : fallback.email,
+      phone: profile.phone?.trim() ? profile.phone : fallback.phone,
+    };
+  } catch {
+    return fallback;
+  }
 }
 
 export async function ensureProfile(user: AppUser, phone = '') {
   try {
-    await supabase.from('profiles').upsert({ id: user.id, name: user.name, email: user.email, phone });
+    // Never let an empty phone wipe a saved one. Login shows no
+    // phone field, so its phone argument is empty, and that used
+    // to overwrite the signup phone on every login. Now an empty
+    // argument keeps the phone already in the profiles table, and
+    // if there is no row yet it is simply left out, so the column
+    // default applies instead of an overwrite.
+    let resolvedPhone = phone.trim();
+    if (!resolvedPhone) {
+      const { data: existing } = await supabase.from('profiles').select('phone').eq('id', user.id).single();
+      if (existing?.phone) resolvedPhone = existing.phone;
+    }
+    await supabase.from('profiles').upsert({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      ...(resolvedPhone ? { phone: resolvedPhone } : {}),
+    });
   } catch {
     // Profiles table not created yet. Auth still works, the profile
     // will be created on the next sign in once the schema is run.

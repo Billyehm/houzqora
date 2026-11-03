@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { eur } from '@/lib/properties';
-import { fetchBookings, fetchProperties, getCurrentUser, upsertBooking, type AppUser, type BookingState } from '@/lib/queries';
+import { fetchBookings, fetchAllProperties, getCurrentUser, upsertBooking, type AppUser, type BookingState } from '@/lib/queries';
 import InspectionFee from '@/components/InspectionFee';
 import DiscountBookingsCard from '@/components/DiscountBookingsCard';
 import type { Property } from '@/lib/properties';
@@ -19,7 +19,7 @@ export default function BookingsClient() {
     (async () => {
       const u = await getCurrentUser();
       setUser(u);
-      setAllProperties(await fetchProperties());
+      setAllProperties(await fetchAllProperties());
       if (u) setHomes(await fetchBookings(u.id));
       setLoaded(true);
     })();

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { eur } from '@/lib/properties';
+import { supabase } from '@/lib/supabase';
 import { getCurrentUser } from '@/lib/queries';
-import { DISCOUNT_PERCENT, discountedFee, isDiscountActive, loadDiscount } from '@/lib/discount';
+import { DISCOUNT_PERCENT, discountedFee, fetchDiscountState, isDiscountActive } from '@/lib/discount';
 
 // One display for the inspection fee everywhere it is shown, so a
 // claimed discount slashes the price in the same way on cards, the
@@ -14,19 +15,28 @@ export default function InspectionFee({ fee }: { fee: number }) {
   useEffect(() => {
     let cancelled = false;
     const refresh = () => {
-      getCurrentUser().then((u) => {
+      getCurrentUser().then(async (u) => {
         if (cancelled) return;
-        setActive(isDiscountActive(loadDiscount(u ? u.id : null), Date.now()));
+        // Signed out users have no discount, only a generic advert.
+        if (!u) {
+          setActive(false);
+          return;
+        }
+        const state = await fetchDiscountState(u.id);
+        if (!cancelled) setActive(isDiscountActive(state, Date.now()));
       });
     };
     refresh();
-    // Claim in the banner updates fees on the page already open too.
+    // Claim in the banner updates fees on the page already open too,
+    // and login or logout switches between personal and no discount.
     window.addEventListener('houzqora-discount-change', refresh);
     window.addEventListener('storage', refresh);
+    const { data } = supabase.auth.onAuthStateChange(() => refresh());
     return () => {
       cancelled = true;
       window.removeEventListener('houzqora-discount-change', refresh);
       window.removeEventListener('storage', refresh);
+      data.subscription.unsubscribe();
     };
   }, []);
 

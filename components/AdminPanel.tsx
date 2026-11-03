@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { adminLogout } from '@/lib/admin-auth';
-import { createPropertyAdmin, deletePropertyAdmin, updatePropertyAdmin, uploadPropertyImageAdmin } from '@/lib/admin-actions';
-import { fetchProperties } from '@/lib/queries';
+import { createPropertyAdmin, deletePropertyAdmin, fetchMessagesAdmin, updatePropertyAdmin, uploadPropertyImageAdmin, type AdminMessage } from '@/lib/admin-actions';
+import { fetchAllProperties } from '@/lib/queries';
 import type { Property } from '@/lib/properties';
 
 const emptyForm: Property = {
@@ -12,6 +12,7 @@ const emptyForm: Property = {
   bedrooms: 1, bathrooms: 1, toilets: 1, sizeM2: 50,
   rent: 0, fee: 0, securing: 0,
   furnished: '', parking: '', description: '', amenities: [], images: [],
+  available: true,
 };
 
 function slugify(text: string) {
@@ -25,9 +26,18 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
   const [editing, setEditing] = useState<string | null>(null);
   const [amenitiesText, setAmenitiesText] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [messages, setMessages] = useState<AdminMessage[]>([]);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchMessagesAdmin().then((result) => {
+      if (!cancelled && result.ok) setMessages(result.messages);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   const set = (key: keyof Property, value: string | number) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -76,7 +86,7 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
   };
 
   const refresh = async () => {
-    setList(await fetchProperties());
+    setList(await fetchAllProperties());
   };
 
   const save = async () => {
@@ -149,6 +159,7 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
           <label className={label}>Type<input value={form.type} onChange={(e) => set('type', e.target.value)} className={input} /></label>
           <label className={label}>Furnishing<input value={form.furnished} onChange={(e) => set('furnished', e.target.value)} className={input} /></label>
           <label className={label}>Parking<input value={form.parking} onChange={(e) => set('parking', e.target.value)} className={input} /></label>
+          <label className={label}>Available<input type="checkbox" checked={form.available} onChange={(e) => setForm((f) => ({ ...f, available: e.target.checked }))} className="mt-2 block h-5 w-5" /></label>
           <label className={label}>Bedrooms<input type="number" value={form.bedrooms} onChange={(e) => set('bedrooms', Number(e.target.value))} className={input} /></label>
           <label className={label}>Bathrooms<input type="number" value={form.bathrooms} onChange={(e) => set('bathrooms', Number(e.target.value))} className={input} /></label>
           <label className={label}>Toilets<input type="number" value={form.toilets} onChange={(e) => set('toilets', Number(e.target.value))} className={input} /></label>
@@ -185,11 +196,22 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
       <div className="mt-3 space-y-2">
         {list.map((p) => (
           <div key={p.slug} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-white px-4 py-3 text-sm">
-            <span><span className="font-bold">{p.title}</span> <span className="text-muted">· {p.city} · €{p.rent} / month · Fee €{p.fee} · Secure €{p.securing}</span></span>
+            <span><span className="font-bold">{p.title}</span> <span className="text-muted">· {p.city} · €{p.rent} / month · Fee €{p.fee} · Secure €{p.securing}</span>{!p.available && <span className="ml-2 rounded-full bg-strawberry px-2 py-0.5 text-xs font-extrabold text-white">Unavailable</span>}</span>
             <span className="flex gap-2">
               <button onClick={() => startEdit(p)} className="btn-press rounded-full border border-line px-4 py-2 font-bold text-velvet">Edit</button>
               <button onClick={() => remove(p.slug)} className="btn-press rounded-full bg-strawberry px-4 py-2 font-bold text-white">Delete</button>
             </span>
+          </div>
+        ))}
+      </div>
+
+      <h2 className="mt-8 text-xl font-extrabold text-velvet">Messages ({messages.length})</h2>
+      <div className="mt-3 space-y-2">
+        {messages.length === 0 && <p className="text-sm text-muted">No messages yet.</p>}
+        {messages.map((m) => (
+          <div key={m.id} className="rounded-xl border border-line bg-white px-4 py-3 text-sm">
+            <p><span className="font-bold">{m.name}</span> <span className="text-muted">· {m.email} · {new Date(m.created_at).toLocaleDateString('en-GB')}</span></p>
+            <p className="mt-1 break-words">{m.message}</p>
           </div>
         ))}
       </div>

@@ -1,14 +1,19 @@
-// New-user inspection discount, peculiar to each user.
+// New-user inspection discount, linked to the user's account.
 //
-// Stored in the browser, keyed by the signed-in user id (or "guest"
-// before signup), so one user's countdown, claim and dismissal never
-// leak into another user's. A guest who later signs up gets a fresh
-// window under their own user id. This is per device: it does not
-// follow a user to another device, a server table would be needed
-// for that.
+// Signed out: there is no user to link a discount to, so the banner
+// is only a generic advert, "30% inspection discount for 7 days",
+// with no personal countdown and no personal claim. Claiming it
+// takes the visitor to signup, where a personal discount starts.
+// Signed in: the discount lives in the user_discounts table, one
+// row per account, so it follows the user across devices. The
+// browser copy is only a fallback while that table has not been
+// run yet: if the table query fails, the browser copy is used
+// instead, keyed by user id, so one account never leaks into
+// another's.
 //
 // Rules:
-// - The 7 day window starts the first time this user sees the banner.
+// - The 7 day window starts the first time the signed in user sees
+//   the banner.
 // - "Claim and use" activates the discount for the rest of that window.
 // - The X only hides the banner for this session. It does not cancel
 //   the offer: the banner comes back when the user leaves the app and
@@ -74,6 +79,62 @@ export function saveDiscount(userId: string | null, state: DiscountState): void 
   } catch {
     // Storage full or blocked: the banner just will not persist.
   }
+}
+
+// Account linked discount, table first, browser fallback. Signed
+// out users have no personal state, so this returns null for them.
+export async function fetchDiscountState(userId: string | null): Promise<DiscountState | null> {
+  if (!userId) return null;
+  const browserFallback = (): DiscountState => {
+    const existing = loadDiscount(userId);
+    if (existing) return existing;
+    const fresh: DiscountState = { startsAt: Date.now(), claimed: false };
+    saveDiscount(userId, fresh);
+    return fresh;
+  };
+  try {
+    const { supabase } = await import('./supabase');
+    const { data, error } = await supabase.from('user_discounts').select('starts_at, claimed').eq('user_id', userId).single();
+    if (data) {
+      const state: DiscountState = { startsAt: new Date(data.starts_at).getTime(), claimed: !!data.claimed };
+      saveDiscount(userId, state);
+      return state;
+    }
+    if (error && error.code !== 'PGRST116') throw error;
+    // No row yet: first sight for this account starts the window.
+    const now = new Date().toISOString();
+    const { error: insertError } = await supabase.from('user_discounts').insert({ user_id: userId, starts_at: now, claimed: false });
+    if (insertError) {
+      const retry = await supabase.from('user_discounts').select('starts_at, claimed').eq('user_id', userId).single();
+      if (retry.data) {
+        const state: DiscountState = { startsAt: new Date(retry.data.starts_at).getTime(), claimed: !!retry.data.claimed };
+        saveDiscount(userId, state);
+        return state;
+      }
+      throw insertError;
+    }
+    const state: DiscountState = { startsAt: Date.now(), claimed: false };
+    saveDiscount(userId, state);
+    return state;
+  } catch {
+    return browserFallback();
+  }
+}
+
+export async function claimDiscountState(userId: string | null): Promise<DiscountState | null> {
+  if (!userId) return null;
+  const state = await fetchDiscountState(userId);
+  if (!state) return null;
+  const claimed: DiscountState = { ...state, claimed: true };
+  try {
+    const { supabase } = await import('./supabase');
+    const { error } = await supabase.from('user_discounts').update({ claimed: true, updated_at: new Date().toISOString() }).eq('user_id', userId);
+    if (error) throw error;
+  } catch {
+    // Table not run yet: the browser copy carries the claim.
+  }
+  saveDiscount(userId, claimed);
+  return claimed;
 }
 
 export function isExpired(state: DiscountState, now: number): boolean {

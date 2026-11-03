@@ -41,7 +41,11 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
         if (signInError) throw signInError;
       }
       const user = await getCurrentUser();
-      if (user) await ensureProfile(user, phone);
+      // On login there is no phone field, so phone is empty here.
+      // Fall back to the phone on the account, which signup stored
+      // in the account metadata, so a first login after email
+      // confirmation still saves the signup phone instead of losing it.
+      if (user) await ensureProfile(user, phone || user.phone || '');
       const pending = getPendingSlug();
       if (pending && user) {
         const bookings = await fetchBookings(user.id);

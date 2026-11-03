@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { getCurrentUser } from '@/lib/queries';
 import {
   DISCOUNT_PERCENT,
+  claimDiscountState,
+  fetchDiscountState,
   formatCountdown,
   isExpired,
-  loadDiscount,
-  saveDiscount,
   type DiscountState,
 } from '@/lib/discount';
 
@@ -33,18 +33,19 @@ export default function DiscountBookingsCard() {
 
   useEffect(() => {
     if (!userChecked) return;
-    const existing = loadDiscount(userId);
-    if (existing) {
-      setState(existing);
+    if (!userId) {
+      setState(null);
       return;
     }
-    const fresh: DiscountState = { startsAt: Date.now(), claimed: false };
-    saveDiscount(userId, fresh);
-    setState(fresh);
+    let cancelled = false;
+    fetchDiscountState(userId).then((s) => {
+      if (!cancelled) setState(s);
+    });
+    return () => { cancelled = true; };
   }, [userChecked, userId]);
 
   useEffect(() => {
-    const refresh = () => setState(loadDiscount(userId));
+    const refresh = () => { void fetchDiscountState(userId).then(setState); };
     window.addEventListener('houzqora-discount-change', refresh);
     window.addEventListener('storage', refresh);
     return () => {
@@ -60,10 +61,9 @@ export default function DiscountBookingsCard() {
 
   if (!state || isExpired(state, now)) return null;
 
-  const claim = () => {
-    const next = { ...state, claimed: true };
-    saveDiscount(userId, next);
-    setState(next);
+  const claim = async () => {
+    const next = await claimDiscountState(userId);
+    if (next) setState(next);
     window.dispatchEvent(new Event('houzqora-discount-change'));
   };
 
@@ -82,7 +82,7 @@ export default function DiscountBookingsCard() {
           </p>
         </div>
         {!state.claimed && (
-          <button type="button" onClick={claim} className="btn-press rounded-full bg-strawberry px-5 py-2.5 text-sm font-bold text-white">
+          <button type="button" onClick={() => { void claim(); }} className="btn-press rounded-full bg-strawberry px-5 py-2.5 text-sm font-bold text-white">
             Claim and use
           </button>
         )}

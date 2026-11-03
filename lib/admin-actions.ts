@@ -12,7 +12,7 @@ function toRow(p: Property) {
     type: p.type, bedrooms: p.bedrooms, bathrooms: p.bathrooms, toilets: p.toilets,
     size_m2: p.sizeM2, rent: p.rent, fee: p.fee, securing: p.securing,
     furnished: p.furnished, parking: p.parking, description: p.description,
-    amenities: p.amenities, images: p.images, available: true,
+    amenities: p.amenities, images: p.images, available: p.available ?? true,
   };
 }
 
@@ -57,6 +57,19 @@ export async function uploadPropertyImageAdmin(formData: FormData): Promise<{ ok
     return { ok: true, url: data.publicUrl };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Could not upload this image.' };
+  }
+}
+
+export type AdminMessage = { id: string; name: string; email: string; message: string; created_at: string };
+
+export async function fetchMessagesAdmin(): Promise<{ ok: boolean; messages: AdminMessage[]; error?: string }> {
+  if (!(await isAdmin())) return { ok: false, messages: [], error: 'Not signed in as admin.' };
+  try {
+    const { data, error } = await getAdminSupabase().from('messages').select('id, name, email, message, created_at').order('created_at', { ascending: false });
+    if (error) throw error;
+    return { ok: true, messages: (data || []) as AdminMessage[] };
+  } catch (e) {
+    return { ok: false, messages: [], error: e instanceof Error ? e.message : 'Could not load messages.' };
   }
 }
 

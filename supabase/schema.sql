@@ -95,3 +95,32 @@ values
   ('spacious-three-bedroom-house-kralingen', 'Spacious 3 bedroom house, Kralingen', 'Rotterdam', 'Kralingen', 'Terraced house', 3, 2, 2, 92, 1980, 80, 3960, 'Unfurnished', 'Street parking nearby', 'Family house with a garden, three bedrooms, and two bathrooms. Quiet area, close to parks and public transport.', array['Garden', 'Bike storage', 'Washing machine'], array['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80&auto=format&fit=crop', 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80&auto=format&fit=crop', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&q=80&auto=format&fit=crop']),
   ('modern-two-bedroom-apartment-oud-west', 'Modern 2 bedroom apartment, Oud-West', 'Amsterdam', 'Oud-West', 'Apartment', 2, 1, 1, 70, 2290, 75, 4580, 'Furnished option available', 'No parking', 'Modern apartment with an open living space, close to Vondelpark and local shops. Good light all day.', array['Balcony', 'Lift', 'High speed internet ready'], array['https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80&auto=format&fit=crop', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&q=80&auto=format&fit=crop', 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=1200&q=80&auto=format&fit=crop'])
 on conflict (slug) do nothing;
+
+-- Storage bucket for admin image uploads. Already created on the
+-- live project through the Storage API; this is here so a fresh
+-- run of this file also creates it. Uploads go through the admin
+-- server action with the service role key, which bypasses row level
+-- security, so no storage policies are needed. Public read lets
+-- visitors see house photos without signed links.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('property-images', 'property-images', true, 5242880, array['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+on conflict (id) do nothing;
+
+-- Per-user new-user discount, linked to the account, so it follows
+-- the user across devices instead of living only in one browser.
+-- One row per user: when the discount window starts, and whether
+-- the user claimed it. The 7 day window is starts_at plus 7 days.
+-- Row level security is owner only; the app reads and writes only
+-- the signed in user's own row.
+create table if not exists public.user_discounts (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  starts_at timestamptz not null default now(),
+  claimed boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.user_discounts enable row level security;
+
+drop policy if exists "user_discounts own" on public.user_discounts;
+create policy "user_discounts own" on public.user_discounts for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

@@ -16,6 +16,7 @@ export type Property = {
   description: string;
   amenities: string[];
   images: string[];
+  available: boolean;
 };
 
 const img = (id: string) =>
@@ -41,6 +42,7 @@ export const properties: Property[] = [
       'Light filled corner apartment close to canals, trams, and shops. Quiet street, bright living room, and a practical kitchen.',
     amenities: ['Balcony', 'Washing machine', 'High speed internet ready', 'Bike storage'],
     images: [img('photo-1502672260266-1c1ef2d93688'), img('photo-1522708323590-d24dbb6b0267'), img('photo-1493809842364-78817add7ffb')],
+    available: true,
   },
   {
     slug: 'bright-one-bedroom-apartment-katendrecht',
@@ -61,6 +63,7 @@ export const properties: Property[] = [
       'Modern 1 bedroom apartment with a balcony, near the metro and river views. Good for one person or a couple.',
     amenities: ['Balcony', 'Lift', 'Bike storage'],
     images: [img('photo-1560448204-e02f11c3d0e2'), img('photo-1502672260266-1c1ef2d93688'), img('photo-1600607687939-ce8a6c25118c')],
+    available: true,
   },
   {
     slug: 'cozy-two-bedroom-apartment-wittevrouwen',
@@ -81,6 +84,7 @@ export const properties: Property[] = [
       'Quiet street in Utrecht, near Griftpark and the city centre. Ideal for a couple or a small household.',
     amenities: ['Garden access', 'Bike storage', 'Washing machine'],
     images: [img('photo-1522708323590-d24dbb6b0267'), img('photo-1493809842364-78817add7ffb'), img('photo-1502672260266-1c1ef2d93688')],
+    available: true,
   },
   {
     slug: 'light-two-bedroom-apartment-de-pijp',
@@ -101,6 +105,7 @@ export const properties: Property[] = [
       'Bright apartment in a lively neighbourhood, close to markets, cafes, and trams. Two good sized bedrooms.',
     amenities: ['Balcony', 'Lift', 'Bike storage'],
     images: [img('photo-1493809842364-78817add7ffb'), img('photo-1522708323590-d24dbb6b0267'), img('photo-1560448204-e02f11c3d0e2')],
+    available: true,
   },
   {
     slug: 'spacious-three-bedroom-house-kralingen',
@@ -121,6 +126,7 @@ export const properties: Property[] = [
       'Family house with a garden, three bedrooms, and two bathrooms. Quiet area, close to parks and public transport.',
     amenities: ['Garden', 'Bike storage', 'Washing machine'],
     images: [img('photo-1600585154340-be6161a56a0c'), img('photo-1600607687939-ce8a6c25118c'), img('photo-1502672260266-1c1ef2d93688')],
+    available: true,
   },
   {
     slug: 'modern-two-bedroom-apartment-oud-west',
@@ -141,6 +147,7 @@ export const properties: Property[] = [
       'Modern apartment with an open living space, close to Vondelpark and local shops. Good light all day.',
     amenities: ['Balcony', 'Lift', 'High speed internet ready'],
     images: [img('photo-1600607687939-ce8a6c25118c'), img('photo-1502672260266-1c1ef2d93688'), img('photo-1522708323590-d24dbb6b0267')],
+    available: true,
   },
 ];
 
