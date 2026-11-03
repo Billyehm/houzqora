@@ -28,21 +28,21 @@ export default function Home() {
         <div className="mt-4"><FilterGrid properties={properties} /></div>
       </section>
 
-      <WindowReveal />
+      <BlueprintReveal />
 
       <section className="py-12 text-center">
         <h2 className="mx-auto max-w-xl text-2xl font-extrabold text-velvet">Open the door, in your own time.</h2>
         <p className="mx-auto mt-2 max-w-md text-muted">Scroll at your pace. Every reveal above is tied to your scroll, so you can stop, go back, and look again.</p>
       </section>
 
-      <GlassDoorReveal />
+      <WindowReveal />
 
       <section className="py-12 text-center">
         <h2 className="mx-auto max-w-xl text-2xl font-extrabold text-velvet">Homes that feel finished, not just listed.</h2>
         <p className="mx-auto mt-2 max-w-md text-muted">Clear rent in euros per month, a clear inspection fee, and a clear amount to secure the home.</p>
       </section>
 
-      <BlueprintReveal />
+      <GlassDoorReveal />
 
       <section className="mt-12">
         <h2 className="text-2xl font-extrabold text-velvet">How it works</h2>
