@@ -79,9 +79,9 @@ export default function BlueprintReveal() {
         // always sit at the same position and follow pinned progress.
         tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
       };
-      mm.add('(min-width: 1024px)', () => build(3));
-      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build(2.2));
-      mm.add('(max-width: 639px)', () => build(1.6));
+      mm.add('(min-width: 1024px)', () => build(4.5));
+      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build(3.3));
+      mm.add('(max-width: 639px)', () => build(2.4));
     }, section);
     return () => {
       ctx.revert();

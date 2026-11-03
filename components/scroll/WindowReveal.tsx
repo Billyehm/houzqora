@@ -78,9 +78,9 @@ export default function WindowReveal() {
         // always sit at the same position and follow pinned progress.
         tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
       };
-      mm.add('(min-width: 1024px)', () => build(2));
-      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build(1.6));
-      mm.add('(max-width: 639px)', () => build(1.2));
+      mm.add('(min-width: 1024px)', () => build(3));
+      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build(2.4));
+      mm.add('(max-width: 639px)', () => build(1.8));
     }, section);
     return () => {
       ctx.revert();

@@ -77,9 +77,9 @@ export default function CameraZoom() {
         // always sit at the same position and follow pinned progress.
         tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
       };
-      mm.add('(min-width: 1024px)', () => build(2, 1.9));
-      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build(1.6, 1.6));
-      mm.add('(max-width: 639px)', () => build(1.2, 1.35));
+      mm.add('(min-width: 1024px)', () => build(3, 1.9));
+      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build(2.4, 1.6));
+      mm.add('(max-width: 639px)', () => build(1.8, 1.35));
     }, section);
     return () => {
       ctx.revert();
