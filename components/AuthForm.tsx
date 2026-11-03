@@ -14,12 +14,11 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {
     setError('');
-    setNotice('');
     if (!email.includes('@')) { setError('Please enter a valid email.'); return; }
     if (password.length < 6) { setError('Password needs at least 6 characters.'); return; }
     if (mode === 'signup' && !name.trim()) { setError('Please enter your full name.'); return; }
@@ -33,7 +32,7 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
         });
         if (signUpError) throw signUpError;
         if (!data.session) {
-          setNotice('Check your email to confirm your account, then log in.');
+          setShowConfirmPopup(true);
           setBusy(false);
           return;
         }
@@ -61,8 +60,8 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
   };
 
   return (
+    <>
     <div className="rounded-2xl border border-line bg-white p-6">
-      {notice && <p className="rounded-xl bg-cream p-3 text-sm font-bold text-velvet">{notice}</p>}
       {mode === 'signup' && (
         <>
           <label className="mt-4 block text-xs font-extrabold text-velvet">Full name<input value={name} onChange={(e) => setName(e.target.value)} disabled={busy} placeholder="e.g. Anna de Vries" className="mt-1 block w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none" /></label>
@@ -80,5 +79,29 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
         {mode === 'signup' ? (<>Already have an account? <a href="/login" className="font-bold text-velvet">Log in</a></>) : (<>New here? <a href="/signup" className="font-bold text-velvet">Sign up</a></>)}
       </p>
     </div>
+    {showConfirmPopup && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onClick={() => setShowConfirmPopup(false)}>
+        <div className="relative w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-[0_24px_60px_rgba(0,0,0,0.35)]" onClick={(e) => e.stopPropagation()}>
+          <button aria-label="Close" onClick={() => setShowConfirmPopup(false)} className="btn-press absolute right-4 top-4 rounded-full bg-cream px-3 py-1 font-extrabold text-velvet">×</button>
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-velvet text-white">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="M3 7l9 6 9-6" />
+            </svg>
+          </div>
+          <h2 className="mt-4 text-lg font-extrabold text-velvet">Check your email</h2>
+          <p className="mt-2 text-sm text-muted">Check your email to confirm your account, then log in.</p>
+          <a href="https://mail.google.com/mail/u/0/#inbox" target="_blank" rel="noopener noreferrer" className="btn-press mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-strawberry px-5 py-3 font-bold text-white">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="M3 7l9 6 9-6" />
+            </svg>
+            Open Gmail
+          </a>
+          <button onClick={() => { setShowConfirmPopup(false); router.push('/login'); }} className="btn-press mt-3 w-full rounded-full border border-velvet px-5 py-3 font-bold text-velvet">Log in</button>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

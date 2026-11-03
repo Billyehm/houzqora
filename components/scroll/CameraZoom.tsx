@@ -44,22 +44,20 @@ export default function CameraZoom() {
     }
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
-      // This card sits at the real top, immediately after the header,
-      // with no viewport-height centring gap above it, and its pin
-      // starts when the card reaches the top of the viewport, like
-      // the other three cards. Pinning at scroll 0 froze the card in
-      // place while the ribbon and header above it still moved in
-      // normal flow, so on mobile the card ended up covering the
-      // header's login and signup buttons. Now the whole page, ribbon
-      // plus header plus card, moves down together until the card
-      // reaches the top, and only then does it pin and zoom.
+      // First card only: its pin starts at scroll 0, so the very
+      // first scroll action moves the timeline. The card itself is
+      // positioned lower in the page, with a gap above it, so the
+      // ribbon and header above it have room to show and the pinned
+      // card sits below them instead of covering the header's login
+      // and signup buttons on mobile. The ribbon-change refresh keeps
+      // that position correct when the ribbon appears or disappears.
       // End distance is card height times the multiplier, so the
       // timeline runs exactly 0 to 1 over the pin distance.
       const build = (multiplier: number, zoom: number) => {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: 'top top',
+            start: 0,
             end: () => `+=${card.offsetHeight * multiplier}`,
             scrub: 1,
             pin: true,
@@ -94,7 +92,7 @@ export default function CameraZoom() {
   }, []);
 
   return (
-    <section ref={sectionRef} aria-label="Camera zoom" className="relative mx-auto w-full max-w-6xl px-4 sm:px-6">
+    <section ref={sectionRef} aria-label="Camera zoom" className="relative mx-auto w-full max-w-6xl px-4 pt-6 sm:px-6">
       <div
         ref={cardRef}
         className="relative h-[62vh] min-h-[420px] w-full overflow-hidden rounded-3xl border border-line bg-velvetdark shadow-[0_24px_60px_rgba(94,18,32,0.25)] sm:h-[68vh] sm:min-h-[480px] lg:h-[min(72vh,720px)]"
