@@ -28,7 +28,7 @@ const tabs = [
   },
   {
     href: '/transportation',
-    label: 'Transportation',
+    label: 'Travel',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M2 12l20-8-6 16-4-7-10-1z" />

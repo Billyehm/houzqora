@@ -3,7 +3,7 @@ import Link from 'next/link';
 export default function TransportationPage() {
   return (
     <div>
-      <h1 className="mt-4 text-3xl font-extrabold text-velvet">Transportation</h1>
+      <h1 className="mt-4 text-3xl font-extrabold text-velvet">Travel</h1>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <section className="rounded-2xl border border-line bg-white p-6">
           <h2 className="text-xl font-extrabold text-velvet">Flight</h2>
