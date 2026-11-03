@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { eur } from '@/lib/properties';
 import { fetchBookings, fetchProperties, getCurrentUser, upsertBooking, type AppUser, type BookingState } from '@/lib/queries';
+import InspectionFee from '@/components/InspectionFee';
 import type { Property } from '@/lib/properties';
 
 export default function BookingsClient() {
@@ -65,7 +66,7 @@ export default function BookingsClient() {
             </div>
             <div>
               <p className="font-bold">{p.title}</p>
-              <p className="text-sm text-muted">{p.city} · {eur(p.rent)} / month · Inspection {eur(p.fee)} · To secure {eur(p.securing)}</p>
+              <p className="text-sm text-muted">{p.city} · {eur(p.rent)} / month · Inspection <InspectionFee fee={p.fee} /> · To secure {eur(p.securing)}</p>
               <p className="mt-2"><span className="rounded-full bg-[#FFF0EF] px-3 py-1 text-xs font-extrabold text-velvet">{status}</span></p>
               <p className="mt-2 text-sm font-bold text-velvet">Next: {state.slot ? `Viewing: ${state.slot}` : 'Viewing slot'}</p>
               {state.paid && !state.slot && (

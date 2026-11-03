@@ -38,6 +38,28 @@ export async function updatePropertyAdmin(slug: string, p: Property): Promise<Re
   }
 }
 
+export async function uploadPropertyImageAdmin(formData: FormData): Promise<{ ok: boolean; url?: string; error?: string }> {
+  if (!(await isAdmin())) return { ok: false, error: 'Not signed in as admin.' };
+  const file = formData.get('file');
+  if (!(file instanceof File) || file.size === 0) return { ok: false, error: 'Choose an image to upload.' };
+  if (!file.type.startsWith('image/')) return { ok: false, error: 'Only image files can be uploaded.' };
+  if (file.size > 5 * 1024 * 1024) return { ok: false, error: 'Image must be 5MB or smaller.' };
+  try {
+    const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
+    const path = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${cleanName}`;
+    const supabase = getAdminSupabase();
+    const { error } = await supabase.storage.from('property-images').upload(path, file, {
+      contentType: file.type,
+      upsert: false,
+    });
+    if (error) throw error;
+    const { data } = supabase.storage.from('property-images').getPublicUrl(path);
+    return { ok: true, url: data.publicUrl };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Could not upload this image.' };
+  }
+}
+
 export async function deletePropertyAdmin(slug: string): Promise<Result> {
   if (!(await isAdmin())) return { ok: false, error: 'Not signed in as admin.' };
   try {

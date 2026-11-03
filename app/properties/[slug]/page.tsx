@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Gallery from '@/components/Gallery';
 import BookActions from '@/components/BookActions';
+import InspectionFee from '@/components/InspectionFee';
 import { eur, properties } from '@/lib/properties';
 import { fetchProperty } from '@/lib/queries';
 
@@ -38,7 +39,7 @@ export default async function PropertyPage({ params }: { params: { slug: string 
           <p className="text-2xl font-extrabold">{eur(p.rent)} <span className="text-sm font-semibold text-white/70">/ month</span></p>
           <div className="mt-4 space-y-2 rounded-xl bg-white p-4 text-sm text-ink">
             <p className="flex justify-between"><span>Monthly rent</span><b>{eur(p.rent)}</b></p>
-            <p className="flex justify-between"><span>Inspection fee</span><b>{eur(p.fee)}</b></p>
+            <p className="flex justify-between"><span>Inspection fee</span><b><InspectionFee fee={p.fee} /></b></p>
             <p className="flex justify-between border-t border-line pt-2"><span>Remaining to secure</span><b>{eur(p.securing)}</b></p>
             <p className="text-xs text-muted">The securing amount is set per property, first month rent plus deposit.</p>
           </div>

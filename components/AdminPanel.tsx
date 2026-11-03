@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { adminLogout } from '@/lib/admin-auth';
-import { createPropertyAdmin, deletePropertyAdmin, updatePropertyAdmin } from '@/lib/admin-actions';
+import { createPropertyAdmin, deletePropertyAdmin, updatePropertyAdmin, uploadPropertyImageAdmin } from '@/lib/admin-actions';
 import { fetchProperties } from '@/lib/queries';
 import type { Property } from '@/lib/properties';
 
@@ -24,7 +24,7 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
   const [form, setForm] = useState<Property>(emptyForm);
   const [editing, setEditing] = useState<string | null>(null);
   const [amenitiesText, setAmenitiesText] = useState('');
-  const [imagesText, setImagesText] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
@@ -36,7 +36,6 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
   const startAdd = () => {
     setForm(emptyForm);
     setAmenitiesText('');
-    setImagesText('');
     setEditing(null);
     setError('');
     setNotice('');
@@ -45,11 +44,35 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
   const startEdit = (p: Property) => {
     setForm(p);
     setAmenitiesText(p.amenities.join(', '));
-    setImagesText(p.images.join('\n'));
     setEditing(p.slug);
     setError('');
     setNotice('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setError('');
+    setUploading(true);
+    try {
+      const uploaded: string[] = [];
+      for (const file of Array.from(files)) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const result = await uploadPropertyImageAdmin(formData);
+        if (!result.ok || !result.url) throw new Error(result.error || 'Could not upload this image.');
+        uploaded.push(result.url);
+      }
+      setForm((f) => ({ ...f, images: [...f.images, ...uploaded] }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not upload this image.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeImage = (url: string) => {
+    setForm((f) => ({ ...f, images: f.images.filter((x) => x !== url) }));
   };
 
   const refresh = async () => {
@@ -68,7 +91,7 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
       title: form.title.trim(),
       city: form.city.trim(),
       amenities: amenitiesText.split(',').map((s) => s.trim()).filter(Boolean),
-      images: imagesText.split('\n').map((s) => s.trim()).filter(Boolean),
+      images: form.images,
     };
     setBusy(true);
     try {
@@ -136,7 +159,20 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
         </div>
         <label className={`${label} mt-3`}>Description<textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={4} className={input} /></label>
         <label className={`${label} mt-3`}>Amenities, separated by commas<textarea value={amenitiesText} onChange={(e) => setAmenitiesText(e.target.value)} rows={2} className={input} /></label>
-        <label className={`${label} mt-3`}>Image URLs, one per line<textarea value={imagesText} onChange={(e) => setImagesText(e.target.value)} rows={3} className={input} /></label>
+        <div className="mt-3">
+          <p className={label}>Images</p>
+          <input type="file" accept="image/*" multiple onChange={(e) => { void handleUpload(e.target.files); e.target.value = ''; }} className={`${input} mt-1`} />
+          {uploading && <p className="mt-2 text-sm font-bold text-velvet">Uploading...</p>}
+          <div className="mt-3 flex flex-wrap gap-3">
+            {form.images.map((url) => (
+              <div key={url} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" className="h-24 w-32 rounded-xl border border-line object-cover" />
+                <button type="button" onClick={() => removeImage(url)} className="btn-press absolute -right-2 -top-2 rounded-full bg-strawberry px-2 py-0.5 text-xs font-bold text-white">Remove</button>
+              </div>
+            ))}
+          </div>
+        </div>
         {error && <p className="mt-3 text-sm font-bold text-strawberry">{error}</p>}
         {notice && <p className="mt-3 text-sm font-bold text-green-700">{notice}</p>}
         <div className="mt-4 flex flex-wrap gap-3">

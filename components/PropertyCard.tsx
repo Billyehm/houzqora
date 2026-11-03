@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { eur, type Property } from '@/lib/properties';
+import InspectionFee from '@/components/InspectionFee';
 
 export default function PropertyCard({
   p,
@@ -27,7 +28,7 @@ export default function PropertyCard({
         <p className="text-xl font-extrabold text-velvet">{eur(p.rent)} <span className="text-sm font-semibold text-muted">/ month</span></p>
         <Link href={`/properties/${p.slug}`} className="mt-1 block font-bold hover:underline">{p.title}</Link>
         <p className="mt-1 text-sm text-muted">{p.city} · {p.bedrooms} bed · {p.bathrooms} bath · {p.sizeM2} m2</p>
-        <p className="mt-1 text-sm font-bold text-strawberry">Inspection fee {eur(p.fee)} · Available</p>
+        <p className="mt-1 text-sm font-bold text-strawberry">Inspection fee <InspectionFee fee={p.fee} /> · Available</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Link href={`/properties/${p.slug}`} className="btn-press rounded-full border border-line bg-white px-4 py-2 text-sm font-bold text-velvet">View details</Link>
           <Link href={`/properties/${p.slug}`} className="btn-press rounded-full bg-strawberry px-4 py-2 text-sm font-bold text-white">Book inspection</Link>

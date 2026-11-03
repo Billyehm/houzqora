@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { eur, type Property } from '@/lib/properties';
 import { fetchBookings, getCurrentUser, upsertBooking, type AppUser } from '@/lib/queries';
+import InspectionFee from '@/components/InspectionFee';
 
 export default function CheckoutClient({ p }: { p: Property }) {
   const router = useRouter();
@@ -59,12 +60,12 @@ export default function CheckoutClient({ p }: { p: Property }) {
     <div className="rounded-2xl border border-line bg-white p-6">
       <div className="mt-4 space-y-2 text-sm">
         <p className="flex justify-between"><span>Monthly rent</span><b>{eur(p.rent)}</b></p>
-        <p className="flex justify-between"><span>Inspection fee, non-refundable</span><b>{eur(p.fee)}</b></p>
+        <p className="flex justify-between"><span>Inspection fee, non-refundable</span><b><InspectionFee fee={p.fee} /></b></p>
         <p className="flex justify-between"><span>Remaining to secure, first month plus deposit</span><b>{eur(p.securing)}</b></p>
       </div>
       <p className="mt-4 text-sm text-muted">Confirming the inspection does not reserve this home. It covers arranging and conducting your viewing.</p>
       <button onClick={confirm} disabled={processing} className="btn-press mt-4 w-full rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">
-        {processing ? 'Recording...' : `Confirm inspection, fee ${eur(p.fee)}`}
+        {processing ? 'Recording...' : (<>Confirm inspection, fee <InspectionFee fee={p.fee} /></>)}
       </button>
     </div>
   );
