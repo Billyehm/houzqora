@@ -23,6 +23,7 @@ export default function DashboardClient() {
   const [minRent, setMinRent] = useState('');
   const [maxRent, setMaxRent] = useState('');
   const [saved, setSaved] = useState<string[]>([]);
+  const [toggling, setToggling] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 4;
@@ -167,10 +168,16 @@ export default function DashboardClient() {
               index={((page - 1) * pageSize + i) % 3}
               showSave
               saved={saved.includes(p.slug)}
+              saving={toggling === p.slug}
               onToggleSave={async () => {
                 if (!user) return;
-                const nowSaved = await toggleSavedSlug(user.id, p.slug);
-                setSaved((s) => (nowSaved ? [...s, p.slug] : s.filter((x) => x !== p.slug)));
+                setToggling(p.slug);
+                try {
+                  const nowSaved = await toggleSavedSlug(user.id, p.slug);
+                  setSaved((s) => (nowSaved ? [...s, p.slug] : s.filter((x) => x !== p.slug)));
+                } finally {
+                  setToggling(null);
+                }
               }}
             />
           ))}

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { getCurrentUser } from '@/lib/queries';
+import Spinner from '@/components/Spinner';
 import {
   DISCOUNT_PERCENT,
   claimDiscountState,
@@ -22,6 +23,7 @@ export default function DiscountBanner() {
   const [userChecked, setUserChecked] = useState(false);
   const [state, setState] = useState<DiscountState | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [claiming, setClaiming] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
   // Re-check on login and logout, because the banner lives in the
@@ -59,6 +61,14 @@ export default function DiscountBanner() {
     return () => { cancelled = true; };
   }, [userChecked, userId]);
 
+  // Tell the scroll cards when the ribbon appears, disappears, or
+  // switches, so their pin positions re-measure instead of sitting
+  // at a stale height and covering the header.
+  useEffect(() => {
+    if (!userChecked) return;
+    window.dispatchEvent(new Event('houzqora-banner-change'));
+  }, [userChecked, dismissed, userId, state]);
+
   // Tick the countdown every second.
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
@@ -90,8 +100,13 @@ export default function DiscountBanner() {
   if (!state || isExpired(state, now)) return null;
 
   const claim = async () => {
-    const next = await claimDiscountState(userId);
-    if (next) setState(next);
+    setClaiming(true);
+    try {
+      const next = await claimDiscountState(userId);
+      if (next) setState(next);
+    } finally {
+      setClaiming(false);
+    }
     window.dispatchEvent(new Event('houzqora-discount-change'));
   };
 
@@ -114,8 +129,8 @@ export default function DiscountBanner() {
         ) : (
           <>
             <span className="hidden shrink-0 whitespace-nowrap font-extrabold sm:inline">Discount alert</span>
-            <span className="min-w-0 truncate">{DISCOUNT_PERCENT}% off inspection for new users, ends in {formatCountdown(state, now)}</span>
-            <button type="button" onClick={() => { void claim(); }} className="btn-press shrink-0 whitespace-nowrap rounded-full bg-strawberry px-3 py-1 text-xs font-bold text-white sm:px-4 sm:py-1.5 sm:text-sm">Claim and use</button>
+            <span className="min-w-0 truncate">{DISCOUNT_PERCENT}% off inspections, ends in {formatCountdown(state, now)}</span>
+            <button type="button" onClick={() => { void claim(); }} disabled={claiming} className="btn-press flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-strawberry px-3 py-1 text-xs font-bold text-white disabled:opacity-60 sm:px-4 sm:py-1.5 sm:text-sm">{claiming && <Spinner className="h-3 w-3" />}Claim and use</button>
           </>
         )}
         <button type="button" onClick={dismiss} aria-label="Close discount banner" className="btn-press shrink-0 rounded-full px-1 py-1 text-base font-bold leading-none text-white/80 sm:px-2 sm:text-lg">×</button>

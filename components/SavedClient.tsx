@@ -9,6 +9,7 @@ import type { Property } from '@/lib/properties';
 export default function SavedClient() {
   const [user, setUser] = useState<AppUser | null>(null);
   const [saved, setSaved] = useState<string[]>([]);
+  const [toggling, setToggling] = useState<string | null>(null);
   const [allProperties, setAllProperties] = useState<Property[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -55,10 +56,16 @@ export default function SavedClient() {
               index={i % 3}
               showSave
               saved
+              saving={toggling === p.slug}
               onToggleSave={async () => {
                 if (!user) return;
-                await toggleSavedSlug(user.id, p.slug);
-                setSaved((s) => s.filter((x) => x !== p.slug));
+                setToggling(p.slug);
+                try {
+                  await toggleSavedSlug(user.id, p.slug);
+                  setSaved((s) => s.filter((x) => x !== p.slug));
+                } finally {
+                  setToggling(null);
+                }
               }}
             />
           ))}

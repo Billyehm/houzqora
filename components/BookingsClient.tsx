@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { eur } from '@/lib/properties';
 import { fetchBookings, fetchAllProperties, getCurrentUser, upsertBooking, type AppUser, type BookingState } from '@/lib/queries';
+import Spinner from '@/components/Spinner';
 import InspectionFee from '@/components/InspectionFee';
 import DiscountBookingsCard from '@/components/DiscountBookingsCard';
 import type { Property } from '@/lib/properties';
@@ -12,6 +13,7 @@ import type { Property } from '@/lib/properties';
 export default function BookingsClient() {
   const [user, setUser] = useState<AppUser | null>(null);
   const [homes, setHomes] = useState<Record<string, BookingState>>({});
+  const [picking, setPicking] = useState<string | null>(null);
   const [allProperties, setAllProperties] = useState<Property[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -43,9 +45,11 @@ export default function BookingsClient() {
   const entries = Object.entries(homes).filter(([, state]) => state.paid || state.slot);
 
   const pickSlot = async (slug: string, slot: string) => {
+    setPicking(`${slug}:${slot}`);
     const next = { ...homes[slug], slot };
     setHomes((h) => ({ ...h, [slug]: next }));
     if (user) await upsertBooking(user.id, slug, next);
+    setPicking(null);
   };
 
   return (
@@ -74,14 +78,14 @@ export default function BookingsClient() {
               {state.paid && !state.slot && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {['Thu 10:00', 'Fri 14:30', 'Sat 11:00'].map((s) => (
-                    <button key={s} onClick={() => pickSlot(slug, s)} className="btn-press rounded-full border border-line bg-white px-3 py-2 text-sm font-bold">{s}</button>
+                    <button key={s} onClick={() => pickSlot(slug, s)} disabled={picking !== null} className="btn-press flex items-center gap-2 rounded-full border border-line bg-white px-3 py-2 text-sm font-bold disabled:opacity-60">{picking === `${slug}:${s}` && <Spinner className="h-3.5 w-3.5" />}{s}</button>
                   ))}
                 </div>
               )}
             </div>
             <div>
               {state.paid && <p className="text-sm font-extrabold text-green-700">Request recorded</p>}
-              <div className="mt-2"><Link href="/contact" className="btn-press inline-block rounded-full border border-line px-4 py-2 text-sm font-bold text-velvet">Message agency</Link></div>
+              <div className="mt-2"><Link href={`/agents?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(p.title)}&city=${encodeURIComponent(p.city)}`} className="btn-press inline-block rounded-full border border-line px-4 py-2 text-sm font-bold text-velvet">Message agency</Link></div>
             </div>
           </article>
         );

@@ -9,10 +9,12 @@ export default function PasswordField({
   value,
   onChange,
   placeholder,
+  disabled = false,
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  disabled?: boolean;
 }) {
   const [show, setShow] = useState(false);
 
@@ -25,11 +27,13 @@ export default function PasswordField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
+          disabled={disabled}
           className="block w-full rounded-xl border border-line px-3 py-2.5 pr-11 text-sm outline-none"
         />
         <button
           type="button"
           onClick={() => setShow((s) => !s)}
+          disabled={disabled}
           aria-label={show ? 'Hide password' : 'Show password'}
           aria-pressed={show}
           className="btn-press absolute inset-y-0 right-0 flex items-center px-3 text-velvet"

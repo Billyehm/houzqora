@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { eur, type Property } from '@/lib/properties';
 import InspectionFee from '@/components/InspectionFee';
+import Spinner from '@/components/Spinner';
 
 export default function PropertyCard({
   p,
@@ -10,6 +11,7 @@ export default function PropertyCard({
   saved = false,
   onToggleSave,
   gateToLogin = false,
+  saving = false,
 }: {
   p: Property;
   index?: number;
@@ -17,6 +19,7 @@ export default function PropertyCard({
   saved?: boolean;
   onToggleSave?: () => void;
   gateToLogin?: boolean;
+  saving?: boolean;
 }) {
   const rise = index === 0 ? 'rise' : index === 1 ? 'rise-2' : 'rise-3';
   // On the landing page, a logged-out tap on any home action opens
@@ -41,11 +44,13 @@ export default function PropertyCard({
           {showSave && (
             <button
               onClick={onToggleSave}
+              disabled={saving}
               aria-pressed={saved}
-              className={`btn-press rounded-full px-4 py-2 text-sm font-bold ${
+              className={`btn-press flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold disabled:opacity-60 ${
                 saved ? 'bg-velvet text-white' : 'border border-line bg-white text-velvet'
               }`}
             >
+              {saving && <Spinner className="h-3.5 w-3.5" />}
               {saved ? 'Saved' : 'Save'}
             </button>
           )}

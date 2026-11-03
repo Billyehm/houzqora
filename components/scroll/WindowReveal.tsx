@@ -86,6 +86,13 @@ export default function WindowReveal() {
       ctx.revert();
     };
   }, []);
+  // Re-measure pin positions when the discount ribbon appears,
+  // disappears, or switches, since that shifts everything below it.
+  useEffect(() => {
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener('houzqora-banner-change', refresh);
+    return () => window.removeEventListener('houzqora-banner-change', refresh);
+  }, []);
 
   return (
     <section ref={sectionRef} aria-label="Window reveal" className="relative mx-auto flex min-h-[100svh] w-full max-w-6xl flex-col justify-center px-4 py-8 sm:px-6">

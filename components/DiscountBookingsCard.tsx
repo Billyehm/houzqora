@@ -1,5 +1,6 @@
 'use client';
 
+import Spinner from '@/components/Spinner';
 import { useEffect, useState } from 'react';
 import { getCurrentUser } from '@/lib/queries';
 import {
@@ -20,6 +21,7 @@ export default function DiscountBookingsCard() {
   const [userChecked, setUserChecked] = useState(false);
   const [state, setState] = useState<DiscountState | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [claiming, setClaiming] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,8 +64,13 @@ export default function DiscountBookingsCard() {
   if (!state || isExpired(state, now)) return null;
 
   const claim = async () => {
-    const next = await claimDiscountState(userId);
-    if (next) setState(next);
+    setClaiming(true);
+    try {
+      const next = await claimDiscountState(userId);
+      if (next) setState(next);
+    } finally {
+      setClaiming(false);
+    }
     window.dispatchEvent(new Event('houzqora-discount-change'));
   };
 
@@ -78,12 +85,12 @@ export default function DiscountBookingsCard() {
           <p className="mt-2 text-sm text-white/80">
             {state.claimed
               ? `Your inspection fees are ${DISCOUNT_PERCENT}% off, ends in ${formatCountdown(state, now)}`
-              : `${DISCOUNT_PERCENT}% off inspection for new users, ends in ${formatCountdown(state, now)}`}
+              : `${DISCOUNT_PERCENT}% off inspections, ends in ${formatCountdown(state, now)}`}
           </p>
         </div>
         {!state.claimed && (
-          <button type="button" onClick={() => { void claim(); }} className="btn-press rounded-full bg-strawberry px-5 py-2.5 text-sm font-bold text-white">
-            Claim and use
+          <button type="button" onClick={() => { void claim(); }} disabled={claiming} className="btn-press flex items-center gap-2 rounded-full bg-strawberry px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60">
+            {claiming && <Spinner />}Claim and use
           </button>
         )}
       </div>

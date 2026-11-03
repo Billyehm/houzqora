@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { adminLogout } from '@/lib/admin-auth';
 import { createPropertyAdmin, deletePropertyAdmin, fetchMessagesAdmin, updatePropertyAdmin, uploadPropertyImageAdmin, type AdminMessage } from '@/lib/admin-actions';
 import { fetchAllProperties } from '@/lib/queries';
+import Spinner from '@/components/Spinner';
 import type { Property } from '@/lib/properties';
 
 const emptyForm: Property = {
@@ -30,6 +31,7 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -122,6 +124,7 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
   const remove = async (slug: string) => {
     if (!window.confirm('Delete this house? This cannot be undone.')) return;
     setError('');
+    setDeleting(slug);
     try {
       const result = await deletePropertyAdmin(slug);
       if (!result.ok) throw new Error(result.error || 'Could not delete this house.');
@@ -130,6 +133,8 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
       if (editing === slug) startAdd();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not delete this house.');
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -173,7 +178,7 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
         <div className="mt-3">
           <p className={label}>Images</p>
           <input type="file" accept="image/*" multiple onChange={(e) => { void handleUpload(e.target.files); e.target.value = ''; }} className={`${input} mt-1`} />
-          {uploading && <p className="mt-2 text-sm font-bold text-velvet">Uploading...</p>}
+          {uploading && <p className="mt-2 flex items-center gap-2 text-sm font-bold text-velvet"><Spinner />Uploading...</p>}
           <div className="mt-3 flex flex-wrap gap-3">
             {form.images.map((url) => (
               <div key={url} className="relative">
@@ -187,7 +192,7 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
         {error && <p className="mt-3 text-sm font-bold text-strawberry">{error}</p>}
         {notice && <p className="mt-3 text-sm font-bold text-green-700">{notice}</p>}
         <div className="mt-4 flex flex-wrap gap-3">
-          <button onClick={save} disabled={busy} className="btn-press rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">{editing ? 'Save changes' : 'Add house'}</button>
+          <button onClick={save} disabled={busy} className="btn-press flex items-center gap-2 rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">{busy && <Spinner />}{editing ? 'Save changes' : 'Add house'}</button>
           {editing && <button onClick={startAdd} className="btn-press rounded-full border border-line px-5 py-3 font-bold text-velvet">Cancel edit</button>}
         </div>
       </div>
@@ -199,7 +204,7 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
             <span><span className="font-bold">{p.title}</span> <span className="text-muted">· {p.city} · €{p.rent} / month · Fee €{p.fee} · Secure €{p.securing}</span>{!p.available && <span className="ml-2 rounded-full bg-strawberry px-2 py-0.5 text-xs font-extrabold text-white">Unavailable</span>}</span>
             <span className="flex gap-2">
               <button onClick={() => startEdit(p)} className="btn-press rounded-full border border-line px-4 py-2 font-bold text-velvet">Edit</button>
-              <button onClick={() => remove(p.slug)} className="btn-press rounded-full bg-strawberry px-4 py-2 font-bold text-white">Delete</button>
+              <button onClick={() => remove(p.slug)} disabled={deleting === p.slug} className="btn-press flex items-center gap-2 rounded-full bg-strawberry px-4 py-2 font-bold text-white disabled:opacity-60">{deleting === p.slug && <Spinner className="h-3.5 w-3.5" />}Delete</button>
             </span>
           </div>
         ))}

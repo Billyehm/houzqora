@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import Spinner from '@/components/Spinner';
 import { getCurrentUser, type AppUser } from '@/lib/queries';
 
 export default function Header() {
   const [user, setUser] = useState<AppUser | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -25,8 +27,13 @@ export default function Header() {
   }, [pathname]);
 
   const logOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+    setLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      setUser(null);
+      setLoggingOut(false);
+    }
     router.push('/');
   };
 
@@ -48,7 +55,7 @@ export default function Header() {
       {!isAdminPage && (
       <nav className="flex flex-wrap items-center gap-3">
         {user ? (
-          <button type="button" onClick={logOut} className="btn-press rounded-full bg-velvet px-5 py-2.5 text-sm font-bold text-white shadow-[0_2px_0_rgba(94,18,32,0.3)]">Log out</button>
+          <button type="button" onClick={logOut} disabled={loggingOut} className="btn-press flex items-center gap-2 rounded-full bg-velvet px-5 py-2.5 text-sm font-bold text-white shadow-[0_2px_0_rgba(94,18,32,0.3)] disabled:opacity-60">{loggingOut && <Spinner className="h-3.5 w-3.5" />}Log out</button>
         ) : (
           <>
             <Link href="/login" className="btn-press rounded-full border border-line bg-white px-5 py-2.5 text-sm font-bold text-velvet shadow-sm">Log in</Link>

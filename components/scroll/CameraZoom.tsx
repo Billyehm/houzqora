@@ -44,22 +44,22 @@ export default function CameraZoom() {
     }
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
-      // First card only, unlike the other three: this card sits at the
-      // real top, immediately after the header, with no viewport-height
-      // centring gap above it, and its pin starts at scroll 0. That is
-      // the whole fix for the dead scroll before it: before, the section
-      // was viewport height and centred, and start 'top top' made the
-      // page scroll header height plus centring gap plus padding before
-      // the timeline moved from 0. Now the very first scroll action
-      // moves the timeline. The other three cards keep start 'top top',
-      // because they sit mid page and must scroll into view first.
+      // This card sits at the real top, immediately after the header,
+      // with no viewport-height centring gap above it, and its pin
+      // starts when the card reaches the top of the viewport, like
+      // the other three cards. Pinning at scroll 0 froze the card in
+      // place while the ribbon and header above it still moved in
+      // normal flow, so on mobile the card ended up covering the
+      // header's login and signup buttons. Now the whole page, ribbon
+      // plus header plus card, moves down together until the card
+      // reaches the top, and only then does it pin and zoom.
       // End distance is card height times the multiplier, so the
       // timeline runs exactly 0 to 1 over the pin distance.
       const build = (multiplier: number, zoom: number) => {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: 0,
+            start: 'top top',
             end: () => `+=${card.offsetHeight * multiplier}`,
             scrub: 1,
             pin: true,
@@ -84,6 +84,13 @@ export default function CameraZoom() {
     return () => {
       ctx.revert();
     };
+  }, []);
+  // Re-measure pin positions when the discount ribbon appears,
+  // disappears, or switches, since that shifts everything below it.
+  useEffect(() => {
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener('houzqora-banner-change', refresh);
+    return () => window.removeEventListener('houzqora-banner-change', refresh);
   }, []);
 
   return (

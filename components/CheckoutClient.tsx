@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { eur, type Property } from '@/lib/properties';
 import { fetchBookings, getCurrentUser, upsertBooking, type AppUser } from '@/lib/queries';
 import InspectionFee from '@/components/InspectionFee';
+import Spinner from '@/components/Spinner';
 
 export default function CheckoutClient({ p }: { p: Property }) {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function CheckoutClient({ p }: { p: Property }) {
     })();
   }, [p.slug]);
 
-  if (!checked) return <p className="mt-6">Loading checkout...</p>;
+  if (!checked) return <p className="mt-6 flex items-center gap-2"><Spinner />Loading checkout...</p>;
 
   if (!user) {
     return (
@@ -64,7 +65,8 @@ export default function CheckoutClient({ p }: { p: Property }) {
         <p className="flex justify-between"><span>Remaining to secure, first month plus deposit</span><b>{eur(p.securing)}</b></p>
       </div>
       <p className="mt-4 text-sm text-muted">Confirming the inspection does not reserve this home. It covers arranging and conducting your viewing.</p>
-      <button onClick={confirm} disabled={processing} className="btn-press mt-4 w-full rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">
+      <button onClick={confirm} disabled={processing} className="btn-press mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">
+        {processing && <Spinner />}
         {processing ? 'Recording...' : (<>Confirm inspection, fee <InspectionFee fee={p.fee} /></>)}
       </button>
     </div>

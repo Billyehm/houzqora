@@ -101,6 +101,13 @@ export default function GlassDoorReveal() {
       ctx.revert();
     };
   }, []);
+  // Re-measure pin positions when the discount ribbon appears,
+  // disappears, or switches, since that shifts everything below it.
+  useEffect(() => {
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener('houzqora-banner-change', refresh);
+    return () => window.removeEventListener('houzqora-banner-change', refresh);
+  }, []);
 
   const doorFrame = 'border-[#2b2f33]';
   return (

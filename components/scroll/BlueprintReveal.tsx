@@ -87,6 +87,13 @@ export default function BlueprintReveal() {
       ctx.revert();
     };
   }, []);
+  // Re-measure pin positions when the discount ribbon appears,
+  // disappears, or switches, since that shifts everything below it.
+  useEffect(() => {
+    const refresh = () => ScrollTrigger.refresh();
+    window.addEventListener('houzqora-banner-change', refresh);
+    return () => window.removeEventListener('houzqora-banner-change', refresh);
+  }, []);
 
   const svgProps = { viewBox: '0 0 800 520', className: 'h-full w-full', preserveAspectRatio: 'xMidYMid meet' } as const;
 
