@@ -60,7 +60,7 @@ export default function BlueprintReveal() {
             trigger: section,
             start: 'top top',
             end: () => `+=${card.offsetHeight * multiplier}`,
-            scrub: true,
+            scrub: 1,
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
@@ -79,9 +79,9 @@ export default function BlueprintReveal() {
         // always sit at the same position and follow pinned progress.
         tl.to([leftThumbRef.current, rightThumbRef.current], { yPercent: 300, ease: 'none', duration: tl.duration() }, 0);
       };
-      mm.add('(min-width: 1024px)', () => build(4.5));
-      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build(3.3));
-      mm.add('(max-width: 639px)', () => build(2.4));
+      mm.add('(min-width: 1024px)', () => build(9));
+      mm.add('(min-width: 640px) and (max-width: 1023px)', () => build(6.6));
+      mm.add('(max-width: 639px)', () => build(4.8));
     }, section);
     return () => {
       ctx.revert();
