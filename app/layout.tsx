@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">{children}</main>
         <Footer />
-        <div aria-hidden="true" className="h-28" />
+        <div aria-hidden="true" className="h-24" />
         <BottomNav />
       </body>
     </html>

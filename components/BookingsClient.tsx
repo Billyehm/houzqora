@@ -3,12 +3,10 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { eur, getProperty } from '@/lib/properties';
-import { clearDemoUser, getDemoUser, getMyHomes, setMyHome, type DemoUser, type MyHomeState } from '@/lib/demo';
+import { getDemoUser, getMyHomes, setMyHome, type DemoUser, type MyHomeState } from '@/lib/demo';
 
 export default function BookingsClient() {
-  const router = useRouter();
   const [user, setUser] = useState<DemoUser | null>(null);
   const [homes, setHomes] = useState<Record<string, MyHomeState>>({});
   const [loaded, setLoaded] = useState(false);
@@ -44,10 +42,7 @@ export default function BookingsClient() {
 
   return (
     <div>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-extrabold text-velvet">Bookings</h1>
-        <button onClick={() => { clearDemoUser(); router.push('/'); }} className="btn-press rounded-full border border-line bg-white px-4 py-2 text-sm font-bold text-velvet">Sign out</button>
-      </div>
+      <h1 className="mt-4 text-3xl font-extrabold text-velvet">Bookings</h1>
       {entries.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-line bg-white p-6">
           <h2 className="text-xl font-extrabold text-velvet">No active bookings</h2>
