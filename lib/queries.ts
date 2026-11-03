@@ -4,8 +4,9 @@ import { properties as seedProperties, getProperty as getSeedProperty, type Prop
 export type AppUser = { id: string; name: string; email: string; phone?: string };
 export type BookingState = { paid: boolean; slot: string };
 
-// --- Properties: Supabase first, seed list only if the table is not
-// there yet or returns nothing, so the public pages never go empty. ---
+// --- Properties: the Supabase table is the only source of homes.
+// If it fails or returns nothing, the app shows an empty state,
+// never a stale hard coded list. ---
 
 type PropertyRow = {
   slug: string; title: string; city: string; neighbourhood: string; type: string;
