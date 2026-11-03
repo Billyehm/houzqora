@@ -15,7 +15,6 @@ export default function Footer() {
           <Link href="/privacy-policy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/inspection-policy">Inspection policy</Link>
-          <Link href="/admin">Admin</Link>
         </div>
       </div>
     </footer>

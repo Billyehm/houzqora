@@ -1,0 +1,162 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { adminLogout } from '@/lib/admin-auth';
+import { createPropertyAdmin, deletePropertyAdmin, updatePropertyAdmin } from '@/lib/admin-actions';
+import { fetchProperties } from '@/lib/queries';
+import type { Property } from '@/lib/properties';
+
+const emptyForm: Property = {
+  slug: '', title: '', city: '', neighbourhood: '', type: 'Apartment',
+  bedrooms: 1, bathrooms: 1, toilets: 1, sizeM2: 50,
+  rent: 0, fee: 0, securing: 0,
+  furnished: '', parking: '', description: '', amenities: [], images: [],
+};
+
+function slugify(text: string) {
+  return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+export default function AdminPanel({ initialProperties }: { initialProperties: Property[] }) {
+  const router = useRouter();
+  const [list, setList] = useState<Property[]>(initialProperties);
+  const [form, setForm] = useState<Property>(emptyForm);
+  const [editing, setEditing] = useState<string | null>(null);
+  const [amenitiesText, setAmenitiesText] = useState('');
+  const [imagesText, setImagesText] = useState('');
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const set = (key: keyof Property, value: string | number) => {
+    setForm((f) => ({ ...f, [key]: value }));
+  };
+
+  const startAdd = () => {
+    setForm(emptyForm);
+    setAmenitiesText('');
+    setImagesText('');
+    setEditing(null);
+    setError('');
+    setNotice('');
+  };
+
+  const startEdit = (p: Property) => {
+    setForm(p);
+    setAmenitiesText(p.amenities.join(', '));
+    setImagesText(p.images.join('\n'));
+    setEditing(p.slug);
+    setError('');
+    setNotice('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const refresh = async () => {
+    setList(await fetchProperties());
+  };
+
+  const save = async () => {
+    setError('');
+    setNotice('');
+    const slug = editing || slugify(form.title);
+    if (!slug) { setError('Give the house a title, so a slug can be made from it.'); return; }
+    if (!form.title.trim() || !form.city.trim()) { setError('Title and city are required.'); return; }
+    const property: Property = {
+      ...form,
+      slug,
+      title: form.title.trim(),
+      city: form.city.trim(),
+      amenities: amenitiesText.split(',').map((s) => s.trim()).filter(Boolean),
+      images: imagesText.split('\n').map((s) => s.trim()).filter(Boolean),
+    };
+    setBusy(true);
+    try {
+      const result = editing
+        ? await updatePropertyAdmin(editing, property)
+        : await createPropertyAdmin(property);
+      if (!result.ok) throw new Error(result.error || 'Could not save this house.');
+      await refresh();
+      setNotice(editing ? 'House updated.' : 'House added.');
+      startAdd();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not save this house. If SUPABASE_SERVICE_ROLE_KEY is not set in .env.local, or the service role grants have not been run, the write will be rejected.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async (slug: string) => {
+    if (!window.confirm('Delete this house? This cannot be undone.')) return;
+    setError('');
+    try {
+      const result = await deletePropertyAdmin(slug);
+      if (!result.ok) throw new Error(result.error || 'Could not delete this house.');
+      await refresh();
+      setNotice('House deleted.');
+      if (editing === slug) startAdd();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not delete this house.');
+    }
+  };
+
+  const logOut = async () => {
+    await adminLogout();
+    router.refresh();
+  };
+
+  const input = "mt-1 block w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none";
+  const label = "block text-xs font-extrabold text-velvet";
+
+  return (
+    <div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-3xl font-extrabold text-velvet">Admin panel</h1>
+        <button onClick={logOut} className="btn-press rounded-full bg-velvet px-5 py-2.5 text-sm font-bold text-white">Log out</button>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-line bg-white p-6">
+        <h2 className="text-xl font-extrabold text-velvet">{editing ? 'Edit house' : 'Add a house'}</h2>
+        {editing && <p className="mt-1 text-sm text-muted">Slug cannot be changed after creation, because saved homes and bookings point to it.</p>}
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <label className={label}>Title<input value={form.title} onChange={(e) => set('title', e.target.value)} className={input} /></label>
+          <label className={label}>Slug (made from the title)<input value={editing ? form.slug : slugify(form.title)} disabled className={input} /></label>
+          <label className={label}>City<input value={form.city} onChange={(e) => set('city', e.target.value)} className={input} /></label>
+          <label className={label}>Neighbourhood<input value={form.neighbourhood} onChange={(e) => set('neighbourhood', e.target.value)} className={input} /></label>
+          <label className={label}>Type<input value={form.type} onChange={(e) => set('type', e.target.value)} className={input} /></label>
+          <label className={label}>Furnishing<input value={form.furnished} onChange={(e) => set('furnished', e.target.value)} className={input} /></label>
+          <label className={label}>Parking<input value={form.parking} onChange={(e) => set('parking', e.target.value)} className={input} /></label>
+          <label className={label}>Bedrooms<input type="number" value={form.bedrooms} onChange={(e) => set('bedrooms', Number(e.target.value))} className={input} /></label>
+          <label className={label}>Bathrooms<input type="number" value={form.bathrooms} onChange={(e) => set('bathrooms', Number(e.target.value))} className={input} /></label>
+          <label className={label}>Toilets<input type="number" value={form.toilets} onChange={(e) => set('toilets', Number(e.target.value))} className={input} /></label>
+          <label className={label}>Size (m2)<input type="number" value={form.sizeM2} onChange={(e) => set('sizeM2', Number(e.target.value))} className={input} /></label>
+          <label className={label}>Rent / month (€)<input type="number" value={form.rent} onChange={(e) => set('rent', Number(e.target.value))} className={input} /></label>
+          <label className={label}>Inspection fee (€)<input type="number" value={form.fee} onChange={(e) => set('fee', Number(e.target.value))} className={input} /></label>
+          <label className={label}>Amount to secure (€)<input type="number" value={form.securing} onChange={(e) => set('securing', Number(e.target.value))} className={input} /></label>
+        </div>
+        <label className={`${label} mt-3`}>Description<textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={4} className={input} /></label>
+        <label className={`${label} mt-3`}>Amenities, separated by commas<textarea value={amenitiesText} onChange={(e) => setAmenitiesText(e.target.value)} rows={2} className={input} /></label>
+        <label className={`${label} mt-3`}>Image URLs, one per line<textarea value={imagesText} onChange={(e) => setImagesText(e.target.value)} rows={3} className={input} /></label>
+        {error && <p className="mt-3 text-sm font-bold text-strawberry">{error}</p>}
+        {notice && <p className="mt-3 text-sm font-bold text-green-700">{notice}</p>}
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button onClick={save} disabled={busy} className="btn-press rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">{editing ? 'Save changes' : 'Add house'}</button>
+          {editing && <button onClick={startAdd} className="btn-press rounded-full border border-line px-5 py-3 font-bold text-velvet">Cancel edit</button>}
+        </div>
+      </div>
+
+      <h2 className="mt-8 text-xl font-extrabold text-velvet">Houses ({list.length})</h2>
+      <div className="mt-3 space-y-2">
+        {list.map((p) => (
+          <div key={p.slug} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-white px-4 py-3 text-sm">
+            <span><span className="font-bold">{p.title}</span> <span className="text-muted">· {p.city} · €{p.rent} / month · Fee €{p.fee} · Secure €{p.securing}</span></span>
+            <span className="flex gap-2">
+              <button onClick={() => startEdit(p)} className="btn-press rounded-full border border-line px-4 py-2 font-bold text-velvet">Edit</button>
+              <button onClick={() => remove(p.slug)} className="btn-press rounded-full bg-strawberry px-4 py-2 font-bold text-white">Delete</button>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
