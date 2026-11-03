@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { clearPendingSlug, ensureProfile, fetchBookings, getCurrentUser, getPendingSlug, upsertBooking } from '@/lib/queries';
+import PasswordField from '@/components/PasswordField';
 
 export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
         </>
       )}
       <label className="mt-3 block text-xs font-extrabold text-velvet">Email<input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="mt-1 block w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none" /></label>
-      <label className="mt-3 block text-xs font-extrabold text-velvet">Password<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" className="mt-1 block w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none" /></label>
+      <PasswordField value={password} onChange={setPassword} placeholder="At least 6 characters" />
       {error && <p className="mt-3 text-sm font-bold text-strawberry">{error}</p>}
       <button onClick={submit} disabled={busy} className="btn-press mt-4 w-full rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">
         {mode === 'signup' ? 'Create account and continue' : 'Log in and continue'}
