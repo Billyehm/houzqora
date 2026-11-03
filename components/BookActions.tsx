@@ -1,29 +1,29 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { addMyHome, getDemoUser, setPendingSlug } from '@/lib/demo';
+import { fetchBookings, getCurrentUser, setPendingSlug, upsertBooking } from '@/lib/queries';
 
 export default function BookActions({ slug }: { slug: string }) {
   const router = useRouter();
 
-  const book = () => {
-    if (!getDemoUser()) {
+  const ensureBooking = async () => {
+    const user = await getCurrentUser();
+    if (!user) {
       setPendingSlug(slug);
       router.push('/signup');
-      return;
+      return false;
     }
-    addMyHome(slug);
-    router.push('/bookings');
+    const bookings = await fetchBookings(user.id);
+    await upsertBooking(user.id, slug, bookings[slug] || { paid: false, slot: '' });
+    return true;
   };
 
-  const pay = () => {
-    if (!getDemoUser()) {
-      setPendingSlug(slug);
-      router.push('/signup');
-      return;
-    }
-    addMyHome(slug);
-    router.push(`/checkout/${slug}`);
+  const book = async () => {
+    if (await ensureBooking()) router.push('/bookings');
+  };
+
+  const pay = async () => {
+    if (await ensureBooking()) router.push(`/checkout/${slug}`);
   };
 
   return (

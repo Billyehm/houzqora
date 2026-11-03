@@ -1,19 +1,25 @@
-import { properties } from '@/lib/properties';
+import { fetchProperties } from '@/lib/queries';
+import { supabase } from '@/lib/supabase';
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const properties = await fetchProperties();
+  let bookingCount = 0;
+  try {
+    const { count } = await supabase.from('bookings').select('*', { count: 'exact', head: true });
+    bookingCount = count || 0;
+  } catch {
+    bookingCount = 0;
+  }
+
   return (
     <div>
       <h1 className="mt-4 text-3xl font-extrabold text-velvet">Admin dashboard</h1>
-      <p className="mt-2 rounded-xl bg-cream p-3 text-sm text-muted">
-        Placeholder dashboard for this stage. Full admin CRUD, real payments, and email are later stages and are not faked here.
-        Counts below come only from the seed list in code.
-      </p>
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-line bg-white p-4"><p className="text-muted">Total properties in seed</p><p className="text-2xl font-extrabold">{properties.length}</p></div>
-        <div className="rounded-2xl border border-line bg-white p-4"><p className="text-muted">Available in seed</p><p className="text-2xl font-extrabold">{properties.length}</p></div>
-        <div className="rounded-2xl border border-line bg-white p-4"><p className="text-muted">Real payments recorded</p><p className="text-2xl font-extrabold">0</p></div>
+        <div className="rounded-2xl border border-line bg-white p-4"><p className="text-muted">Total properties</p><p className="text-2xl font-extrabold">{properties.length}</p></div>
+        <div className="rounded-2xl border border-line bg-white p-4"><p className="text-muted">Available</p><p className="text-2xl font-extrabold">{properties.length}</p></div>
+        <div className="rounded-2xl border border-line bg-white p-4"><p className="text-muted">Inspection requests</p><p className="text-2xl font-extrabold">{bookingCount}</p></div>
       </div>
-      <h2 className="mt-6 text-xl font-extrabold text-velvet">Seed properties</h2>
+      <h2 className="mt-6 text-xl font-extrabold text-velvet">Properties</h2>
       <div className="mt-3 space-y-2">
         {properties.map((p) => (
           <div key={p.slug} className="flex flex-wrap justify-between gap-2 rounded-xl border border-line bg-white px-4 py-3 text-sm">
@@ -22,7 +28,6 @@ export default function AdminPage() {
           </div>
         ))}
       </div>
-      <p className="mt-4 text-sm text-muted">Next admin work: property create, edit, delete, image management, fee and securing amount editing, availability controls, payment table, and activity log, all behind real admin auth.</p>
     </div>
   );
 }

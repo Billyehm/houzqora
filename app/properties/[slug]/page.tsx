@@ -1,14 +1,15 @@
 import { notFound } from 'next/navigation';
 import Gallery from '@/components/Gallery';
 import BookActions from '@/components/BookActions';
-import { eur, getProperty, properties } from '@/lib/properties';
+import { eur, properties } from '@/lib/properties';
+import { fetchProperty } from '@/lib/queries';
 
 export function generateStaticParams() {
   return properties.map((p) => ({ slug: p.slug }));
 }
 
-export default function PropertyPage({ params }: { params: { slug: string } }) {
-  const p = getProperty(params.slug);
+export default async function PropertyPage({ params }: { params: { slug: string } }) {
+  const p = await fetchProperty(params.slug);
   if (!p) notFound();
   return (
     <div className="min-w-0">
@@ -39,7 +40,7 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
             <p className="flex justify-between"><span>Monthly rent</span><b>{eur(p.rent)}</b></p>
             <p className="flex justify-between"><span>Inspection fee</span><b>{eur(p.fee)}</b></p>
             <p className="flex justify-between border-t border-line pt-2"><span>Remaining to secure</span><b>{eur(p.securing)}</b></p>
-            <p className="text-xs text-muted">The securing amount is set per property. It is first month rent plus deposit in this seed set, not assumed from rent alone in the real admin.</p>
+            <p className="text-xs text-muted">The securing amount is set per property, first month rent plus deposit.</p>
           </div>
           <p className="mt-4 rounded-xl border border-white/25 p-3 text-sm text-white/80">
             Inspection fee is non-refundable. It covers arranging and conducting your viewing. It does not reserve this home.

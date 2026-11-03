@@ -5,8 +5,8 @@ import Link from 'next/link';
 import PropertyCard from './PropertyCard';
 import PlaceSearch from './PlaceSearch';
 import Pagination from './Pagination';
-import { eur, properties } from '@/lib/properties';
-import { getDemoUser, getSavedSlugs, toggleSavedSlug, type DemoUser } from '@/lib/demo';
+import { eur, type Property } from '@/lib/properties';
+import { fetchProperties, fetchSavedSlugs, getCurrentUser, toggleSavedSlug, type AppUser } from '@/lib/queries';
 
 const cities = ['All', 'Amsterdam', 'Rotterdam', 'Utrecht', 'The Hague'];
 const bedroomOptions = ['Any', '1', '2', '3+'];
@@ -14,7 +14,8 @@ const minOptions = ['', '1600', '1800', '2000', '2200'];
 const maxOptions = ['', '1800', '2000', '2200', '2500'];
 
 export default function DashboardClient() {
-  const [user, setUser] = useState<DemoUser | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [search, setSearch] = useState('');
   const [city, setCity] = useState('All');
@@ -27,9 +28,13 @@ export default function DashboardClient() {
   const pageSize = 4;
 
   useEffect(() => {
-    setUser(getDemoUser());
-    setSaved(getSavedSlugs());
-    setLoaded(true);
+    (async () => {
+      const u = await getCurrentUser();
+      setUser(u);
+      setProperties(await fetchProperties());
+      if (u) setSaved(await fetchSavedSlugs(u.id));
+      setLoaded(true);
+    })();
   }, []);
 
   const places = useMemo(() => {
@@ -44,7 +49,7 @@ export default function DashboardClient() {
       });
     });
     return list;
-  }, []);
+  }, [properties]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -58,11 +63,11 @@ export default function DashboardClient() {
       if (maxRent && p.rent > Number(maxRent)) return false;
       return true;
     });
-  }, [search, city, beds, minRent, maxRent]);
+  }, [properties, search, city, beds, minRent, maxRent]);
 
   useEffect(() => {
     setPage(1);
-  }, [search, city, beds, minRent, maxRent]);
+  }, [properties, search, city, beds, minRent, maxRent]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const pageHomes = filtered.slice((page - 1) * pageSize, page * pageSize);
@@ -94,7 +99,6 @@ export default function DashboardClient() {
     <div>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <h1 className="text-3xl font-extrabold text-velvet">Dashboard</h1>
-        <span className="rounded-full bg-[#FFF0EF] px-3 py-1 text-xs font-extrabold text-velvet">Demo</span>
       </div>
       <p className="mt-2 text-xl font-bold">Welcome, {firstName}</p>
 
@@ -163,8 +167,9 @@ export default function DashboardClient() {
               index={((page - 1) * pageSize + i) % 3}
               showSave
               saved={saved.includes(p.slug)}
-              onToggleSave={() => {
-                const nowSaved = toggleSavedSlug(p.slug);
+              onToggleSave={async () => {
+                if (!user) return;
+                const nowSaved = await toggleSavedSlug(user.id, p.slug);
                 setSaved((s) => (nowSaved ? [...s, p.slug] : s.filter((x) => x !== p.slug)));
               }}
             />

@@ -3,18 +3,24 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { eur, getProperty } from '@/lib/properties';
-import { getDemoUser, getMyHomes, setMyHome, type DemoUser, type MyHomeState } from '@/lib/demo';
+import { eur } from '@/lib/properties';
+import { fetchBookings, fetchProperties, getCurrentUser, upsertBooking, type AppUser, type BookingState } from '@/lib/queries';
+import type { Property } from '@/lib/properties';
 
 export default function BookingsClient() {
-  const [user, setUser] = useState<DemoUser | null>(null);
-  const [homes, setHomes] = useState<Record<string, MyHomeState>>({});
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [homes, setHomes] = useState<Record<string, BookingState>>({});
+  const [allProperties, setAllProperties] = useState<Property[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setUser(getDemoUser());
-    setHomes(getMyHomes());
-    setLoaded(true);
+    (async () => {
+      const u = await getCurrentUser();
+      setUser(u);
+      setAllProperties(await fetchProperties());
+      if (u) setHomes(await fetchBookings(u.id));
+      setLoaded(true);
+    })();
   }, []);
 
   if (!loaded) return <p className="mt-6">Loading bookings...</p>;
@@ -34,10 +40,10 @@ export default function BookingsClient() {
   // Active bookings only: a fee paid, or a viewing scheduled.
   const entries = Object.entries(homes).filter(([, state]) => state.paid || state.slot);
 
-  const pickSlot = (slug: string, slot: string) => {
+  const pickSlot = async (slug: string, slot: string) => {
     const next = { ...homes[slug], slot };
-    setMyHome(slug, next);
     setHomes((h) => ({ ...h, [slug]: next }));
+    if (user) await upsertBooking(user.id, slug, next);
   };
 
   return (
@@ -49,9 +55,9 @@ export default function BookingsClient() {
           <Link href="/dashboard" className="btn-press mt-4 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Dashboard</Link>
         </div>
       ) : entries.map(([slug, state]) => {
-        const p = getProperty(slug);
+        const p = allProperties.find((x) => x.slug === slug);
         if (!p) return null;
-        const status = state.slot ? 'Viewing scheduled' : 'Fee paid';
+        const status = state.slot ? 'Viewing scheduled' : 'Inspection requested';
         return (
           <article key={slug} className="mt-4 grid gap-4 rounded-2xl border border-line bg-white p-4 sm:grid-cols-[110px_1fr_auto]">
             <div className="relative h-24 w-full overflow-hidden rounded-xl sm:h-[90px] sm:w-[110px]">
@@ -71,7 +77,7 @@ export default function BookingsClient() {
               )}
             </div>
             <div>
-              {state.paid && <p className="text-sm font-extrabold text-green-700">Fee paid</p>}
+              {state.paid && <p className="text-sm font-extrabold text-green-700">Request recorded</p>}
               <div className="mt-2"><Link href="/contact" className="btn-press inline-block rounded-full border border-line px-4 py-2 text-sm font-bold text-velvet">Message agency</Link></div>
             </div>
           </article>

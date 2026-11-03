@@ -3,18 +3,23 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import PropertyCard from './PropertyCard';
-import { getProperty } from '@/lib/properties';
-import { getDemoUser, getSavedSlugs, toggleSavedSlug, type DemoUser } from '@/lib/demo';
+import { fetchProperties, fetchSavedSlugs, getCurrentUser, toggleSavedSlug, type AppUser } from '@/lib/queries';
+import type { Property } from '@/lib/properties';
 
 export default function SavedClient() {
-  const [user, setUser] = useState<DemoUser | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [saved, setSaved] = useState<string[]>([]);
+  const [allProperties, setAllProperties] = useState<Property[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setUser(getDemoUser());
-    setSaved(getSavedSlugs());
-    setLoaded(true);
+    (async () => {
+      const u = await getCurrentUser();
+      setUser(u);
+      setAllProperties(await fetchProperties());
+      if (u) setSaved(await fetchSavedSlugs(u.id));
+      setLoaded(true);
+    })();
   }, []);
 
   if (!loaded) return <p className="mt-6">Loading saved homes...</p>;
@@ -31,7 +36,7 @@ export default function SavedClient() {
     );
   }
 
-  const homes = saved.map((slug) => getProperty(slug)).filter((p) => p !== undefined);
+  const homes = saved.map((slug) => allProperties.find((p) => p.slug === slug)).filter((p) => p !== undefined);
 
   return (
     <div>
@@ -50,8 +55,9 @@ export default function SavedClient() {
               index={i % 3}
               showSave
               saved
-              onToggleSave={() => {
-                toggleSavedSlug(p.slug);
+              onToggleSave={async () => {
+                if (!user) return;
+                await toggleSavedSlug(user.id, p.slug);
                 setSaved((s) => s.filter((x) => x !== p.slug));
               }}
             />

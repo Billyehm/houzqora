@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { clearDemoUser, getDemoUser, type DemoUser } from '@/lib/demo';
+import { supabase } from '@/lib/supabase';
+import { getCurrentUser, type AppUser } from '@/lib/queries';
 
 export default function Header() {
-  const [user, setUser] = useState<DemoUser | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -15,11 +16,16 @@ export default function Header() {
   // or when logout redirects home. Without this, it would keep
   // showing the buttons from the page it first loaded on.
   useEffect(() => {
-    setUser(getDemoUser());
+    getCurrentUser().then(setUser);
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session?.user) { setUser(null); return; }
+      getCurrentUser().then(setUser);
+    });
+    return () => data.subscription.unsubscribe();
   }, [pathname]);
 
-  const logOut = () => {
-    clearDemoUser();
+  const logOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
     router.push('/');
   };
