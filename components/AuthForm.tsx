@@ -6,12 +6,14 @@ import { supabase } from '@/lib/supabase';
 import { clearPendingSlug, ensureProfile, fetchBookings, getCurrentUser, getPendingSlug, upsertBooking } from '@/lib/queries';
 import PasswordField from '@/components/PasswordField';
 import Spinner from '@/components/Spinner';
+import CountryCodePicker from '@/components/CountryCodePicker';
 
-export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
+export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'login'; initialEmail?: string }) {
   const router = useRouter();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
+  const [countryCode, setCountryCode] = useState('31');
+  const [email, setEmail] = useState(initialEmail ?? '');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
@@ -24,11 +26,30 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
     if (mode === 'signup' && !name.trim()) { setError('Please enter your full name.'); return; }
     setBusy(true);
     try {
+      // Full international number: the constant +code from the
+      // picker plus the local digits as typed. If the user typed
+      // the code in the box too, it is stripped once so it is not
+      // doubled. The phone box stays empty when no number is given.
+      // On login this stays empty, so the saved account phone wins.
+      const digits = mode === 'signup' ? phone.replace(/[\s-]/g, '').replace(/^\+/, '') : '';
+      const fullPhone = !digits
+        ? ''
+        : digits.startsWith(countryCode)
+          ? `+${digits}`
+          : `+${countryCode} ${digits}`;
       if (mode === 'signup') {
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { name: name.trim(), phone } },
+          // After confirming, Supabase sends the user straight to
+          // /login, with only the email address in the link, so the
+          // login box is already filled. The password is never put
+          // in a link: only the user knows it, and a link lives in
+          // browser history and in the email itself.
+          options: {
+            data: { name: name.trim(), phone: fullPhone },
+            emailRedirectTo: `${window.location.origin}/login?email=${encodeURIComponent(email)}`,
+          },
         });
         if (signUpError) throw signUpError;
         if (!data.session) {
@@ -45,7 +66,7 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
       // Fall back to the phone on the account, which signup stored
       // in the account metadata, so a first login after email
       // confirmation still saves the signup phone instead of losing it.
-      if (user) await ensureProfile(user, phone || user.phone || '');
+      if (user) await ensureProfile(user, fullPhone || user.phone || '');
       const pending = getPendingSlug();
       if (pending && user) {
         const bookings = await fetchBookings(user.id);
@@ -65,7 +86,12 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
       {mode === 'signup' && (
         <>
           <label className="mt-4 block text-xs font-extrabold text-velvet">Full name<input value={name} onChange={(e) => setName(e.target.value)} disabled={busy} placeholder="e.g. Anna de Vries" className="mt-1 block w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none" /></label>
-          <label className="mt-3 block text-xs font-extrabold text-velvet">Phone<input value={phone} onChange={(e) => setPhone(e.target.value)} disabled={busy} placeholder="+31 6 00 00 00 00" className="mt-1 block w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none" /></label>
+          <span className="mt-3 block text-xs font-extrabold text-velvet">Phone
+            <span className="mt-1 flex items-stretch gap-2">
+              <CountryCodePicker code={countryCode} onChange={setCountryCode} disabled={busy} />
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} disabled={busy} placeholder="6 00 00 00 00" className="block w-full min-w-0 flex-1 rounded-xl border border-line px-3 py-2.5 text-sm outline-none" />
+            </span>
+          </span>
         </>
       )}
       <label className="mt-3 block text-xs font-extrabold text-velvet">Email<input value={email} onChange={(e) => setEmail(e.target.value)} disabled={busy} placeholder="you@example.com" className="mt-1 block w-full rounded-xl border border-line px-3 py-2.5 text-sm outline-none" /></label>
@@ -91,14 +117,7 @@ export default function AuthForm({ mode }: { mode: 'signup' | 'login' }) {
           </div>
           <h2 className="mt-4 text-lg font-extrabold text-velvet">Check your email</h2>
           <p className="mt-2 text-sm text-muted">Check your email to confirm your account, then log in.</p>
-          <a href="https://mail.google.com/mail/u/0/#inbox" target="_blank" rel="noopener noreferrer" className="btn-press mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-strawberry px-5 py-3 font-bold text-white">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <rect x="3" y="5" width="18" height="14" rx="2" />
-              <path d="M3 7l9 6 9-6" />
-            </svg>
-            Open Gmail
-          </a>
-          <button onClick={() => { setShowConfirmPopup(false); router.push('/login'); }} className="btn-press mt-3 w-full rounded-full border border-velvet px-5 py-3 font-bold text-velvet">Log in</button>
+          <button onClick={() => { setShowConfirmPopup(false); router.push('/login'); }} className="btn-press mt-5 w-full rounded-full border border-velvet px-5 py-3 font-bold text-velvet">Log in</button>
         </div>
       </div>
     )}

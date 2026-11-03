@@ -22,6 +22,7 @@ export default function DiscountBanner() {
   const [userId, setUserId] = useState<string | null>(null);
   const [userChecked, setUserChecked] = useState(false);
   const [state, setState] = useState<DiscountState | null>(null);
+  const [stateChecked, setStateChecked] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -52,11 +53,15 @@ export default function DiscountBanner() {
     setDismissed(isBannerDismissed(userId));
     if (!userId) {
       setState(null);
+      setStateChecked(true);
       return;
     }
     let cancelled = false;
     fetchDiscountState(userId).then((s) => {
-      if (!cancelled) setState(s);
+      if (!cancelled) {
+        setState(s);
+        setStateChecked(true);
+      }
     });
     return () => { cancelled = true; };
   }, [userChecked, userId]);
@@ -79,7 +84,18 @@ export default function DiscountBanner() {
   // banner narrows to that same column instead of stretching wide.
   const isAuthPage = pathname === '/login' || pathname === '/signup';
 
-  if (!userChecked || dismissed) return null;
+  // While the account check runs, reserve exactly the ribbon's
+  // height, so the header and the scroll cards are already in their
+  // final positions on first paint instead of jumping down when the
+  // ribbon pops in and the pins re-measure. The strip is velvet,
+  // like the ribbon itself, so it does not flash as a white gap.
+  // Once the check is done and the ribbon truly is not showing
+  // (dismissed this session, or expired), the strip goes away.
+  if (!userChecked || (userId && !stateChecked)) {
+    return <div className="h-7 bg-velvet sm:h-8" aria-hidden="true" />;
+  }
+
+  if (dismissed) return null;
 
   // Signed out: no user to link a discount to, so this is only a
   // generic advert for the 7 day offer. Claiming it goes to signup,

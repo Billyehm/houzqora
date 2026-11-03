@@ -1,6 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
+
+// Layout effect on the client, plain effect on the server, so the
+// pick runs before first paint without a server render warning.
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 const u = (id: string) =>
   `https://images.unsplash.com/${id}?w=1600&q=80&auto=format&fit=crop`;
@@ -12,7 +17,8 @@ const u = (id: string) =>
  * and stored in state. That pick never changes during scrolling, on
  * hover, or on any timer, so the image only changes on the next page
  * refresh. There is no hydration mismatch because the random pick
- * happens in useEffect, after hydration, not during render.
+ * happens in a layout effect, after hydration but before first
+ * paint, so the server image never visibly flashes and swaps.
  */
 export type CameraPair = {
   exterior: string;
@@ -109,7 +115,7 @@ export const blueprintFinals: string[] = [
 
 export function useRefreshPick<T>(pool: readonly T[]): T {
   const [pick, setPick] = useState<T>(pool[0]);
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (pool.length > 1) {
       setPick(pool[Math.floor(Math.random() * pool.length)]);
     }

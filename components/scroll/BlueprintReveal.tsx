@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -8,6 +8,12 @@ import { blueprintFinals, useRefreshPick } from '@/lib/scrollImages';
 import CardScrollbars from './CardScrollbars';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Layout effect on the client, plain effect on the server, so pin
+// spacers and starting transforms are in place before first paint
+// and the page does not visibly re-arrange itself on reload.
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 
 /*
@@ -32,7 +38,7 @@ export default function BlueprintReveal() {
   const leftThumbRef = useRef<HTMLDivElement | null>(null);
   const rightThumbRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const section = sectionRef.current;
     const card = cardRef.current;
     if (!section || !card) return;
