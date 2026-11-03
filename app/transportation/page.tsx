@@ -1,9 +1,8 @@
 import Link from 'next/link';
-import BottomNav from '@/components/BottomNav';
 
 export default function TransportationPage() {
   return (
-    <div className="pb-28">
+    <div>
       <h1 className="mt-4 text-3xl font-extrabold text-velvet">Transportation</h1>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <section className="rounded-2xl border border-line bg-white p-6">
@@ -16,7 +15,6 @@ export default function TransportationPage() {
         </section>
       </div>
       <Link href="/dashboard" className="btn-press mt-6 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Dashboard</Link>
-      <BottomNav />
     </div>
   );
 }

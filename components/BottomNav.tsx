@@ -50,11 +50,11 @@ export default function BottomNav() {
   const pathname = usePathname();
   return (
     <nav
-      aria-label="Logged in sections"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-white shadow-[0_-8px_24px_rgba(94,18,32,0.10)]"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      aria-label="Sections"
+      className="fixed left-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2"
+      style={{ bottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
     >
-      <div className="mx-auto grid max-w-6xl grid-cols-4">
+      <div className="grid grid-cols-4 gap-1 rounded-full border border-white/10 bg-velvetdark px-2 py-2 shadow-[0_18px_40px_rgba(61,11,20,0.45)]">
         {tabs.map((tab) => {
           const active = pathname === tab.href;
           return (
@@ -62,8 +62,8 @@ export default function BottomNav() {
               key={tab.href}
               href={tab.href}
               aria-current={active ? 'page' : undefined}
-              className={`btn-press flex flex-col items-center gap-1 border-t-[3px] py-2.5 text-xs font-extrabold ${
-                active ? 'border-strawberry text-velvet' : 'border-transparent text-muted'
+              className={`btn-press flex flex-col items-center gap-1 rounded-full py-2.5 text-xs font-extrabold ${
+                active ? 'bg-strawberry text-white shadow-[0_2px_0_rgba(94,18,32,0.3)]' : 'text-white/70'
               }`}
             >
               {tab.icon}

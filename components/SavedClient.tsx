@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import PropertyCard from './PropertyCard';
-import BottomNav from './BottomNav';
 import { getProperty } from '@/lib/properties';
 import { getDemoUser, getSavedSlugs, toggleSavedSlug, type DemoUser } from '@/lib/demo';
 
@@ -35,7 +34,7 @@ export default function SavedClient() {
   const homes = saved.map((slug) => getProperty(slug)).filter((p) => p !== undefined);
 
   return (
-    <div className="pb-28">
+    <div>
       <h1 className="mt-4 text-3xl font-extrabold text-velvet">Saved</h1>
       {homes.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-line bg-white p-6">
@@ -59,7 +58,6 @@ export default function SavedClient() {
           ))}
         </div>
       )}
-      <BottomNav />
     </div>
   );
 }

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import PropertyCard from './PropertyCard';
 import PlaceSearch from './PlaceSearch';
 import Pagination from './Pagination';
-import BottomNav from './BottomNav';
 import { eur, properties } from '@/lib/properties';
 import { getDemoUser, getSavedSlugs, toggleSavedSlug, type DemoUser } from '@/lib/demo';
 
@@ -92,7 +91,7 @@ export default function DashboardClient() {
   };
 
   return (
-    <div className="pb-28">
+    <div>
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <h1 className="text-3xl font-extrabold text-velvet">Dashboard</h1>
         <span className="rounded-full bg-[#FFF0EF] px-3 py-1 text-xs font-extrabold text-velvet">Demo</span>
@@ -174,7 +173,6 @@ export default function DashboardClient() {
         <Pagination page={page} totalPages={totalPages} onPage={setPage} />
         </>
       )}
-      <BottomNav />
     </div>
   );
 }

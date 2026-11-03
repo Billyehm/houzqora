@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import BottomNav from '@/components/BottomNav';
 
 export const metadata: Metadata = {
   title: 'HOUZQORA | Verified rentals in the Netherlands',
@@ -20,6 +21,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main className="mx-auto max-w-6xl px-4 pb-10 sm:px-6">{children}</main>
         <Footer />
+        <div aria-hidden="true" className="h-28" />
+        <BottomNav />
       </body>
     </html>
   );
