@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import Gallery from '@/components/Gallery';
 import BookActions from '@/components/BookActions';
 import { eur, getProperty, properties } from '@/lib/properties';
@@ -13,7 +12,6 @@ export default function PropertyPage({ params }: { params: { slug: string } }) {
   if (!p) notFound();
   return (
     <div>
-      <Link href="/properties" className="mt-4 inline-block text-sm font-bold text-velvet">Back to properties</Link>
       <div className="mt-4 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <div>
           <Gallery images={p.images} title={p.title} />

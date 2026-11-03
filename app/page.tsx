@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import FilterGrid from '@/components/FilterGrid';
 import CameraZoom from '@/components/scroll/CameraZoom';
 import WindowReveal from '@/components/scroll/WindowReveal';
@@ -20,10 +19,6 @@ export default function Home() {
           Explore verified rental homes, pay the inspection fee securely online in the real build, and get clear next steps by email.
           No hidden charges. Paying the fee does not reserve the home.
         </p>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/properties" className="btn-press rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
-          <Link href="/how-it-works" className="btn-press rounded-full border border-line bg-white px-5 py-3 font-bold text-velvet">How it works</Link>
-        </div>
         <p className="mt-4 text-sm text-muted">Verified listings · Clear fees · Inspection first, decision second</p>
       </section>
 
@@ -38,7 +33,6 @@ export default function Home() {
       <section className="py-12 text-center">
         <h2 className="mx-auto max-w-xl text-2xl font-extrabold text-velvet">Open the door, in your own time.</h2>
         <p className="mx-auto mt-2 max-w-md text-muted">Scroll at your pace. Every reveal above is tied to your scroll, so you can stop, go back, and look again.</p>
-        <Link href="/properties" className="btn-press mt-4 inline-block rounded-full border border-line bg-white px-5 py-3 font-bold text-velvet">Browse all homes</Link>
       </section>
 
       <GlassDoorReveal />
@@ -46,7 +40,6 @@ export default function Home() {
       <section className="py-12 text-center">
         <h2 className="mx-auto max-w-xl text-2xl font-extrabold text-velvet">Homes that feel finished, not just listed.</h2>
         <p className="mx-auto mt-2 max-w-md text-muted">Clear rent in euros per month, a clear inspection fee, and a clear amount to secure the home.</p>
-        <Link href="/properties" className="btn-press mt-4 inline-block rounded-full bg-velvet px-5 py-3 font-bold text-white">See the full list</Link>
       </section>
 
       <BlueprintReveal />
@@ -76,10 +69,6 @@ export default function Home() {
           <div><p className="font-bold">What the fee covers</p><p className="mt-1 text-sm text-muted">Arranging and conducting your viewing, plus confirmation by email in the real build.</p></div>
           <div><p className="font-bold">What it does not do</p><p className="mt-1 text-sm text-muted">It does not reserve, allocate, or guarantee the home. The home stays available until the securing payment is confirmed.</p></div>
           <div><p className="font-bold">What happens next</p><p className="mt-1 text-sm text-muted">After payment, you pick a viewing slot in My homes, view the home, then decide.</p></div>
-        </div>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link href="/properties" className="btn-press rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available properties</Link>
-          <Link href="/contact" className="btn-press rounded-full border border-line bg-white px-5 py-3 font-bold text-velvet">Contact the agency</Link>
         </div>
       </section>
     </div>

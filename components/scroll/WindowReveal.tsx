@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { windowInteriors, windowWalls, useRefreshPick } from '@/lib/scrollImages';
@@ -112,11 +111,22 @@ export default function WindowReveal() {
         </div>
 
         <div className="absolute left-1/2 top-1/2 w-[78%] max-w-[560px] -translate-x-1/2 -translate-y-1/2 sm:w-[64%] lg:w-[52%]">
-          {/* Reveal groove: a thin shadowed step between wall and frame,
+          {/* Reveal groove: a deep shadowed step between wall and frame,
               so the window reads as set into the wall, not floating on it.
-              The wall texture runs continuously right up to this groove. */}
-          <div className="relative bg-black/30 p-[10px] shadow-[0_24px_50px_rgba(0,0,0,0.5)]">
-            <div className="relative h-[46vh] min-h-[280px] overflow-hidden border-[12px] border-[#f2efe9] shadow-[0_10px_30px_rgba(0,0,0,0.45),inset_0_4px_14px_rgba(0,0,0,0.4)] sm:h-[50vh] lg:h-[52vh] lg:max-h-[500px]">
+              The wall texture runs continuously right up to this groove,
+              and the frame casts its shadow onto the wall below it. */}
+          <div className="relative bg-black/45 p-[10px] shadow-[0_24px_50px_rgba(0,0,0,0.5),inset_0_2px_8px_rgba(0,0,0,0.6)]">
+            {/* Brownish wooden frame: wood gradient with grain streaks.
+                The grain shows only on the frame ring, because the inner
+                opening covers the centre with the interior image. */}
+            <div
+              className="relative h-[46vh] min-h-[280px] border border-black/50 p-[12px] shadow-[0_10px_30px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.5)] sm:h-[50vh] lg:h-[52vh] lg:max-h-[500px]"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(93deg, rgba(60,35,15,0.22) 0 1px, transparent 1px 9px), linear-gradient(135deg, #8a5a33 0%, #6e4423 40%, #7d4e28 60%, #5a371d 100%)',
+              }}
+            >
+            <div className="relative h-full w-full overflow-hidden shadow-[inset_0_4px_14px_rgba(0,0,0,0.4)]">
             <div className="absolute inset-0">
               <Image
                 src={interiorSrc}
@@ -150,19 +160,20 @@ export default function WindowReveal() {
               {/* Muntin bars with depth: light on one edge, shadow on the other,
                   so they read as real bars, not flat drawn lines. */}
               <div
-                className="absolute inset-y-0 left-1/2 w-[6px] -translate-x-1/2 shadow-[1px_0_3px_rgba(0,0,0,0.45),-1px_0_2px_rgba(255,255,255,0.7)]"
-                style={{ background: 'linear-gradient(to right, #ffffff, #ddd7c9, #a9a294)' }}
+                className="absolute inset-y-0 left-1/2 w-[6px] -translate-x-1/2 shadow-[1px_0_3px_rgba(0,0,0,0.45),-1px_0_2px_rgba(255,255,255,0.25)]"
+                style={{ background: 'linear-gradient(to right, #9a6a3d, #6e4423, #4a2e17)' }}
               />
               <div
-                className="absolute inset-x-0 top-1/2 h-[6px] -translate-y-1/2 shadow-[0_1px_3px_rgba(0,0,0,0.45),0_-1px_2px_rgba(255,255,255,0.7)]"
-                style={{ background: 'linear-gradient(to bottom, #ffffff, #ddd7c9, #a9a294)' }}
+                className="absolute inset-x-0 top-1/2 h-[6px] -translate-y-1/2 shadow-[0_1px_3px_rgba(0,0,0,0.45),0_-1px_2px_rgba(255,255,255,0.25)]"
+                style={{ background: 'linear-gradient(to bottom, #9a6a3d, #6e4423, #4a2e17)' }}
               />
-              {/* Sash frame with a bevel, and a thicker bottom rail, as a
-                  real sliding sash has. */}
-              <div className="absolute inset-0 border-[8px] border-[#f0ece3] shadow-[inset_0_2px_8px_rgba(0,0,0,0.4),inset_0_-2px_6px_rgba(0,0,0,0.25)]" />
+              {/* Sash frame, same brownish wood as the outer frame, with a
+                  bevel, and a thicker bottom rail, as a real sliding
+                  sash has. */}
+              <div className="absolute inset-0 border-[8px] border-[#6e4423] shadow-[inset_0_2px_8px_rgba(0,0,0,0.4),inset_0_-2px_6px_rgba(0,0,0,0.25)]" />
               <div
-                className="absolute inset-x-0 bottom-0 h-[18px] shadow-[0_-2px_6px_rgba(0,0,0,0.35),inset_0_1px_2px_rgba(255,255,255,0.8)]"
-                style={{ background: 'linear-gradient(to bottom, #f5f2ea, #d5cfc1)' }}
+                className="absolute inset-x-0 bottom-0 h-[18px] shadow-[0_-2px_6px_rgba(0,0,0,0.35),inset_0_1px_2px_rgba(255,255,255,0.25)]"
+                style={{ background: 'linear-gradient(to bottom, #8a5a33, #5a371d)' }}
               />
               {/* Realistic lever handle: metal plate with screws, and a
                   rounded lever, not a flat stick. */}
@@ -178,9 +189,17 @@ export default function WindowReveal() {
             </div>
             <div className="pointer-events-none absolute inset-0 border border-black/25 shadow-[inset_0_6px_18px_rgba(0,0,0,0.45),inset_0_-4px_12px_rgba(0,0,0,0.3)]" />
             </div>
-            {/* Sill, part of the same assembly: no gap between frame and sill,
-                with a top edge shadow and a soft shadow falling onto the wall. */}
-            <div className="mx-auto -mt-1 h-4 w-[108%] max-w-[600px] -translate-x-[4%] rounded-b-md bg-[#e8e4dc] shadow-[0_12px_25px_rgba(0,0,0,0.4),inset_0_2px_3px_rgba(0,0,0,0.3)]" />
+            </div>
+            {/* Sill, same brownish wood as the frame, part of the same
+                assembly: no gap between frame and sill, with a top edge
+                shadow and a soft shadow falling onto the wall. */}
+            <div
+              className="mx-auto -mt-1 h-4 w-[108%] max-w-[600px] -translate-x-[4%] rounded-b-md shadow-[0_12px_25px_rgba(0,0,0,0.4),inset_0_2px_3px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(93deg, rgba(60,35,15,0.22) 0 1px, transparent 1px 9px), linear-gradient(to bottom, #8a5a33, #6e4423)',
+              }}
+            />
             <div aria-hidden="true" className="mx-auto mt-1 h-5 w-[80%] rounded-full bg-black/35 blur-md" />
           </div>
         </div>
@@ -188,7 +207,6 @@ export default function WindowReveal() {
         <div ref={headingRef} className="absolute inset-x-0 bottom-14 px-6 text-center opacity-0">
           <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-white drop-shadow">Inside the home</p>
           <h2 className="mx-auto mt-2 max-w-xl text-2xl font-extrabold text-white drop-shadow sm:text-4xl">Light, space, and room to breathe.</h2>
-          <Link href="/properties" className="btn-press mt-4 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
         </div>
         <CardScrollbars leftThumbRef={leftThumbRef} rightThumbRef={rightThumbRef} />
       </div>

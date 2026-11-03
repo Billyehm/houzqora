@@ -10,7 +10,6 @@ export default function Footer() {
           Paying an inspection fee does not reserve a home.
         </p>
         <div className="mt-4 flex flex-wrap gap-4 text-sm text-white/80">
-          <Link href="/properties">Properties</Link>
           <Link href="/how-it-works">How it works</Link>
           <Link href="/about">About</Link>
           <Link href="/contact">Contact</Link>

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { glassDoorInteriors, useRefreshPick } from '@/lib/scrollImages';
@@ -147,7 +146,6 @@ export default function GlassDoorReveal() {
         <div ref={headingRef} className="absolute inset-x-0 bottom-12 px-6 text-center opacity-0">
           <h2 className="mx-auto max-w-xl text-2xl font-extrabold text-white drop-shadow sm:text-5xl">{"There's a place waiting for you."}</h2>
           <p className="mx-auto mt-3 max-w-md text-white/90 drop-shadow">{"Explore exceptional homes in locations you'll love."}</p>
-          <Link href="/properties" className="btn-press mt-5 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
         </div>
         <CardScrollbars leftThumbRef={leftThumbRef} rightThumbRef={rightThumbRef} />
       </div>

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { cameraPairs, useRefreshPick } from '@/lib/scrollImages';
@@ -45,19 +44,22 @@ export default function CameraZoom() {
     }
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
-      // Calibration: pin the whole section, not just the card, so the
-      // section padding and the arrow below the card are pinned with
-      // it and cannot drift while the animation plays. The section is
-      // viewport height and centred, so the card sits where it did
-      // before, about 12 percent down the viewport when pinned.
-      // End distance is card height times the multiplier, not a
-      // percentage of the trigger, so the timeline runs exactly 0 to 1
-      // over the pin distance even though the trigger is now taller.
+      // First card only, unlike the other three: this card sits at the
+      // real top, immediately after the header, with no viewport-height
+      // centring gap above it, and its pin starts at scroll 0. That is
+      // the whole fix for the dead scroll before it: before, the section
+      // was viewport height and centred, and start 'top top' made the
+      // page scroll header height plus centring gap plus padding before
+      // the timeline moved from 0. Now the very first scroll action
+      // moves the timeline. The other three cards keep start 'top top',
+      // because they sit mid page and must scroll into view first.
+      // End distance is card height times the multiplier, so the
+      // timeline runs exactly 0 to 1 over the pin distance.
       const build = (multiplier: number, zoom: number) => {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
-            start: 'top top',
+            start: 0,
             end: () => `+=${card.offsetHeight * multiplier}`,
             scrub: true,
             pin: true,
@@ -85,7 +87,7 @@ export default function CameraZoom() {
   }, []);
 
   return (
-    <section ref={sectionRef} aria-label="Camera zoom" className="relative mx-auto flex min-h-[100svh] w-full max-w-6xl flex-col justify-center px-4 py-8 sm:px-6">
+    <section ref={sectionRef} aria-label="Camera zoom" className="relative mx-auto w-full max-w-6xl px-4 sm:px-6">
       <div
         ref={cardRef}
         className="relative h-[62vh] min-h-[420px] w-full overflow-hidden rounded-3xl border border-line bg-velvetdark shadow-[0_24px_60px_rgba(94,18,32,0.25)] sm:h-[68vh] sm:min-h-[480px] lg:h-[min(72vh,720px)]"
@@ -115,7 +117,6 @@ export default function CameraZoom() {
         </div>
         <div ref={finalHeadingRef} className="absolute inset-x-0 bottom-12 px-6 text-center opacity-0">
           <h2 className="mx-auto max-w-xl text-3xl font-extrabold text-white drop-shadow sm:text-4xl">Explore homes worth coming home to.</h2>
-          <Link href="/properties" className="btn-press mt-4 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available homes</Link>
         </div>
         <CardScrollbars leftThumbRef={leftThumbRef} rightThumbRef={rightThumbRef} />
       </div>

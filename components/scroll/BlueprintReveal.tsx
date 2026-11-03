@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { blueprintFinals, useRefreshPick } from '@/lib/scrollImages';
@@ -178,7 +177,6 @@ export default function BlueprintReveal() {
       <div ref={finalHeadingRef} className="absolute inset-x-0 bottom-12 px-6 text-center opacity-0">
         <h2 className="mx-auto max-w-xl text-3xl font-extrabold text-white drop-shadow sm:text-4xl">From vision to the place you will call home.</h2>
         <p className="mx-auto mt-3 max-w-md text-white/90 drop-shadow">Discover properties designed for the way you want to live.</p>
-        <Link href="/properties" className="btn-press mt-4 inline-block rounded-full bg-strawberry px-5 py-3 font-bold text-white">Explore available properties</Link>
       </div>
       <CardScrollbars leftThumbRef={leftThumbRef} rightThumbRef={rightThumbRef} />
       </div>
