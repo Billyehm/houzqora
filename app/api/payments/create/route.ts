@@ -1,15 +1,18 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getAdminSupabase } from '@/lib/admin-supabase';
+import { getFeeToCharge } from '@/lib/discount-server';
 
 // Creates a real payment with Mollie (iDEAL) or Stripe (Card) and
 // returns the provider checkout page to send the customer to.
 // No card or bank details ever pass through this route: Mollie and
 // Stripe host their own checkout pages. The amount is always read
 // from the properties table in the database, never from the browser,
-// so a tampered request cannot change the fee. The booking is NOT
-// marked paid here. Only a provider webhook, after confirming the
-// payment, marks it paid.
+// so a tampered request cannot change the fee. When the account
+// discount is claimed and inside its 7 day window, the fee charged
+// is the discounted fee, the same slashed price the checkout page
+// shows. The booking is NOT marked paid here. Only a provider
+// webhook, after confirming the payment, marks it paid.
 export async function POST(request: Request) {
   try {
     const { slug, method } = (await request.json()) as { slug?: string; method?: string };
@@ -50,7 +53,10 @@ export async function POST(request: Request) {
     if (!Number.isFinite(fee) || fee <= 0) {
       return NextResponse.json({ error: 'This home has no inspection fee set.' }, { status: 400 });
     }
-    const amountCents = Math.round(fee * 100);
+    // The amount actually charged. With an active discount this is
+    // the slashed fee the checkout page shows; otherwise the full fee.
+    const feeToCharge = await getFeeToCharge(user.id, fee);
+    const amountCents = Math.round(feeToCharge * 100);
     const origin = new URL(request.url).origin;
 
     if (method === 'ideal') {
@@ -62,7 +68,7 @@ export async function POST(request: Request) {
         method: 'POST',
         headers: { Authorization: `Bearer ${mollieKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: { currency: 'EUR', value: fee.toFixed(2) },
+          amount: { currency: 'EUR', value: feeToCharge.toFixed(2) },
           description: `HOUZQORA inspection fee - ${property.title}`,
           redirectUrl: `${origin}/bookings`,
           webhookUrl: `${origin}/api/webhooks/mollie`,
