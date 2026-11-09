@@ -54,6 +54,20 @@ video {
 .rise-2 { animation: rise 0.5s ease 0.12s both; }
 .rise-3 { animation: rise 0.5s ease 0.24s both; }
 
+@keyframes reviews-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.reviews-track { animation: reviews-marquee 42s linear infinite; will-change: transform; }
+.reviews-marquee:hover .reviews-track { animation-play-state: paused; }
+.reviews-fade {
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reviews-track { animation: none; }
+}
+
 @keyframes pulse-dot {
   0% { box-shadow: 0 0 0 0 rgba(230, 59, 78, 0.45); }
   70% { box-shadow: 0 0 0 9px rgba(230, 59, 78, 0); }

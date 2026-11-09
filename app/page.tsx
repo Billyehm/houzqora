@@ -1,4 +1,5 @@
 import FilterGrid from '@/components/FilterGrid';
+import ReviewsCarousel from '@/components/ReviewsCarousel';
 import CameraZoom from '@/components/scroll/CameraZoom';
 import WindowReveal from '@/components/scroll/WindowReveal';
 import GlassDoorReveal from '@/components/scroll/GlassDoorReveal';
@@ -27,6 +28,10 @@ export default async function Home() {
         <h2 className="text-2xl font-extrabold text-velvet">Featured homes</h2>
         <p className="mt-1 text-muted">Search by city and bedrooms. Tap a home to see its inspection fee and securing amount.</p>
         <div className="mt-4"><FilterGrid properties={properties} /></div>
+      </section>
+
+      <section className="mt-12">
+        <ReviewsCarousel />
       </section>
 
       <BlueprintReveal />
@@ -69,6 +74,10 @@ export default async function Home() {
           <div><p className="font-bold">What it does not do</p><p className="mt-1 text-sm text-muted">It does not reserve, allocate, or guarantee the home. The home stays available until the securing payment is confirmed.</p></div>
           <div><p className="font-bold">What happens next</p><p className="mt-1 text-sm text-muted">After payment, you pick a viewing slot in My homes, view the home, then decide.</p></div>
         </div>
+      </section>
+
+      <section className="mt-12">
+        <ReviewsCarousel />
       </section>
 
       <GlassDoorReveal />
