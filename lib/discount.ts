@@ -83,7 +83,9 @@ export function saveDiscount(userId: string | null, state: DiscountState): void 
 
 // Account linked discount, table first, browser fallback. Signed
 // out users have no personal state, so this returns null for them.
-export async function fetchDiscountState(userId: string | null): Promise<DiscountState | null> {
+const discountInflight = new Map<string, Promise<DiscountState | null>>();
+
+async function fetchDiscountStateInner(userId: string | null): Promise<DiscountState | null> {
   if (!userId) return null;
   const browserFallback = (): DiscountState => {
     const existing = loadDiscount(userId);
@@ -119,6 +121,25 @@ export async function fetchDiscountState(userId: string | null): Promise<Discoun
   } catch {
     return browserFallback();
   }
+}
+
+// In-flight dedupe only, not a cache. Every InspectionFee on a
+// page calls this for the same account at the same time, plus the
+// banner and the bookings card, so without this the dashboard did
+// one user_discounts query per fee shown. Sharing the call that
+// is already running collapses those into one. Once it settles
+// the slot clears, so a later call, after claiming, fetches fresh.
+export function fetchDiscountState(userId: string | null): Promise<DiscountState | null> {
+  if (!userId) return Promise.resolve(null);
+  const running = discountInflight.get(userId);
+  if (running) return running;
+  const next = fetchDiscountStateInner(userId);
+  discountInflight.set(userId, next);
+  next.then(
+    () => { discountInflight.delete(userId); },
+    () => { discountInflight.delete(userId); },
+  );
+  return next;
 }
 
 export async function claimDiscountState(userId: string | null): Promise<DiscountState | null> {

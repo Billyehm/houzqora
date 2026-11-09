@@ -64,33 +64,52 @@ export async function fetchProperty(slug: string): Promise<Property | undefined>
 
 // --- Auth ---
 
-export async function getCurrentUser(): Promise<AppUser | null> {
-  const { data } = await supabase.auth.getUser();
-  const u = data.user;
-  if (!u) return null;
-  const meta = (u.user_metadata || {}) as Record<string, string>;
-  const fallback = {
-    id: u.id,
-    name: meta.name || u.email?.split('@')[0] || 'Welcome',
-    email: u.email || '',
-    phone: meta.phone || '',
-  };
-  // The profiles table is the source of truth for name and email
-  // once a profile row exists, instead of only the login account
-  // metadata. Fall back to metadata if there is no row yet, or if
-  // the profiles query fails, so login never breaks on it.
-  try {
-    const { data: profile, error } = await supabase.from('profiles').select('name, email, phone').eq('id', u.id).single();
-    if (error || !profile) return fallback;
-    return {
+// In-flight dedupe only, not a cache. The dashboard mounts the
+// header, the discount banner, the bottom nav, the dashboard
+// itself, and one InspectionFee per home at the same time, and
+// every one of them called getCurrentUser, so every one of them
+// did its own auth check plus its own profiles query. Sharing the
+// one call that is already running collapses those into a single
+// auth check and a single profiles query. Once it settles the
+// slot clears, so a later call, after login or logout, fetches
+// fresh instead of returning a stale user.
+let currentUserInflight: Promise<AppUser | null> | null = null;
+
+export function getCurrentUser(): Promise<AppUser | null> {
+  if (currentUserInflight) return currentUserInflight;
+  currentUserInflight = (async (): Promise<AppUser | null> => {
+    const { data } = await supabase.auth.getUser();
+    const u = data.user;
+    if (!u) return null;
+    const meta = (u.user_metadata || {}) as Record<string, string>;
+    const fallback = {
       id: u.id,
-      name: profile.name?.trim() ? profile.name : fallback.name,
-      email: profile.email?.trim() ? profile.email : fallback.email,
-      phone: profile.phone?.trim() ? profile.phone : fallback.phone,
+      name: meta.name || u.email?.split('@')[0] || 'Welcome',
+      email: u.email || '',
+      phone: meta.phone || '',
     };
-  } catch {
-    return fallback;
-  }
+    // The profiles table is the source of truth for name and email
+    // once a profile row exists, instead of only the login account
+    // metadata. Fall back to metadata if there is no row yet, or if
+    // the profiles query fails, so login never breaks on it.
+    try {
+      const { data: profile, error } = await supabase.from('profiles').select('name, email, phone').eq('id', u.id).single();
+      if (error || !profile) return fallback;
+      return {
+        id: u.id,
+        name: profile.name?.trim() ? profile.name : fallback.name,
+        email: profile.email?.trim() ? profile.email : fallback.email,
+        phone: profile.phone?.trim() ? profile.phone : fallback.phone,
+      };
+    } catch {
+      return fallback;
+    }
+  })();
+  currentUserInflight.then(
+    () => { currentUserInflight = null; },
+    () => { currentUserInflight = null; },
+  );
+  return currentUserInflight;
 }
 
 export async function ensureProfile(user: AppUser, phone = '') {

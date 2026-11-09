@@ -29,13 +29,23 @@ export default function DashboardClient() {
   const pageSize = 4;
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
-      const u = await getCurrentUser();
+      // Homes are public, so they do not wait for the account
+      // check. Start both at once, show the homes as soon as
+      // both are in, then fill in the saved marks afterwards
+      // instead of holding the whole dashboard for them.
+      const [u, props] = await Promise.all([getCurrentUser(), fetchProperties()]);
+      if (cancelled) return;
       setUser(u);
-      setProperties(await fetchProperties());
-      if (u) setSaved(await fetchSavedSlugs(u.id));
+      setProperties(props);
       setLoaded(true);
+      if (u) {
+        const s = await fetchSavedSlugs(u.id);
+        if (!cancelled) setSaved(s);
+      }
     })();
+    return () => { cancelled = true; };
   }, []);
 
   const places = useMemo(() => {
