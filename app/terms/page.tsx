@@ -5,7 +5,7 @@ export default function Terms() {
     <div className="max-w-3xl">
       <h1 className="mt-4 text-3xl font-extrabold text-velvet">Terms and conditions</h1>
       <p className="mt-3 text-muted">Last updated: 9 November 2026.</p>
-      <p className="mt-3 text-muted">These terms explain how HOUZQORA works. By using HOUZQORA, you agree to them. HOUZQORA is a rental and property inspection platform for the Netherlands, listing homes in Amsterdam, Rotterdam, Utrecht, and The Hague.</p>
+      <p className="mt-3 text-muted">These terms explain how HOUZQORA works. By using HOUZQORA, you agree to them. HOUZQORA is a rental and property inspection platform for the Netherlands, listing homes across the country.</p>
 
       <h2 className="mt-6 text-xl font-extrabold text-velvet">1. What HOUZQORA does</h2>
       <p className="mt-2 text-muted">HOUZQORA lists available rental homes, shows the monthly rent, the inspection fee, and the amount needed to secure a home, and lets you book and pay for an inspection. We arrange the viewing. We do not decide who rents a home. That decision sits with the agency and the property owner, under their own terms.</p>

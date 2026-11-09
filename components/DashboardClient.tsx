@@ -8,10 +8,13 @@ import Pagination from './Pagination';
 import { eur, type Property } from '@/lib/properties';
 import { fetchProperties, fetchSavedSlugs, getCurrentUser, toggleSavedSlug, type AppUser } from '@/lib/queries';
 
-const cities = ['All', 'Amsterdam', 'Rotterdam', 'Utrecht', 'The Hague'];
+const cities = ['All', 'Alkmaar', 'Amersfoort', 'Amsterdam', 'Arnhem', 'Breda', 'Delft', 'Dordrecht', 'Eindhoven', 'Enschede', 'Gouda', 'Groningen', 'Haarlem', 'Leiden', 'Maastricht', 'Nijmegen', 'Rotterdam', 'The Hague', 'Tilburg', 'Utrecht', 'Zwolle'];
 const bedroomOptions = ['Any', '1', '2', '3+'];
-const minOptions = ['', '1600', '1800', '2000', '2200'];
-const maxOptions = ['', '1800', '2000', '2200', '2500'];
+// Rent ranges match the homes actually listed (745 to 1700 a month).
+// The old 1600 to 2500 options were left over from before the prices
+// were halved, so the lowest minimum filtered every home out.
+const minOptions = ['', '800', '900', '1000', '1100', '1300', '1500'];
+const maxOptions = ['', '900', '1000', '1100', '1200', '1300', '1500', '1700'];
 
 export default function DashboardClient() {
   const [user, setUser] = useState<AppUser | null>(null);

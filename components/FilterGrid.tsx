@@ -83,7 +83,7 @@ export default function FilterGrid({ properties }: { properties: Property[] }) {
               <label className="block text-xs font-extrabold uppercase tracking-wide text-muted">
                 City
                 <select value={city} onChange={(e) => setCity(e.target.value)} className="mt-1 block w-full border-0 bg-transparent text-sm font-bold text-ink outline-none">
-                  <option>All</option><option>Amsterdam</option><option>Rotterdam</option><option>Utrecht</option><option>The Hague</option>
+                  <option>All</option><option>Alkmaar</option><option>Amersfoort</option><option>Amsterdam</option><option>Arnhem</option><option>Breda</option><option>Delft</option><option>Dordrecht</option><option>Eindhoven</option><option>Enschede</option><option>Gouda</option><option>Groningen</option><option>Haarlem</option><option>Leiden</option><option>Maastricht</option><option>Nijmegen</option><option>Rotterdam</option><option>The Hague</option><option>Tilburg</option><option>Utrecht</option><option>Zwolle</option>
                 </select>
               </label>
               <label className="block text-xs font-extrabold uppercase tracking-wide text-muted">
