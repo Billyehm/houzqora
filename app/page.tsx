@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import FilterGrid from '@/components/FilterGrid';
 import ReviewsCarousel from '@/components/ReviewsCarousel';
 import CameraZoom from '@/components/scroll/CameraZoom';
@@ -7,8 +6,12 @@ import GlassDoorReveal from '@/components/scroll/GlassDoorReveal';
 import BlueprintReveal from '@/components/scroll/BlueprintReveal';
 import { fetchProperties } from '@/lib/queries';
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams?: { page?: string } }) {
   const properties = await fetchProperties();
+  // The list opens on the page in the address, so a shared link
+  // or the back button lands on the right page from the start.
+  const raw = Number(searchParams?.page ?? '1');
+  const initialPage = Number.isFinite(raw) && raw >= 1 ? Math.floor(raw) : 1;
   return (
     <div>
       <CameraZoom />
@@ -28,7 +31,7 @@ export default async function Home() {
       <section id="featured-homes" className="mt-10 scroll-mt-24">
         <h2 className="text-2xl font-extrabold text-velvet">Featured homes</h2>
         <p className="mt-1 text-muted">Search by city and bedrooms. Tap a home to see its inspection fee and securing amount.</p>
-        <div className="mt-4"><Suspense fallback={<p className="mt-6">Loading homes...</p>}><FilterGrid properties={properties} /></Suspense></div>
+        <div className="mt-4"><FilterGrid properties={properties} initialPage={initialPage} /></div>
       </section>
 
       <section className="mt-12">

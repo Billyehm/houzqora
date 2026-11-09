@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import PropertyCard from './PropertyCard';
 import PlaceSearch from './PlaceSearch';
 import Pagination from './Pagination';
+import { useReturnHome } from './useReturnHome';
 import { eur, type Property } from '@/lib/properties';
 import { fetchProperties, fetchSavedSlugs, getCurrentUser, toggleSavedSlug, type AppUser } from '@/lib/queries';
 
@@ -17,7 +17,7 @@ const bedroomOptions = ['Any', '1', '2', '3+'];
 const minOptions = ['', '800', '900', '1000', '1100', '1300', '1500'];
 const maxOptions = ['', '900', '1000', '1100', '1200', '1300', '1500', '1700'];
 
-export default function DashboardClient() {
+export default function DashboardClient({ initialPage }: { initialPage: number }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -29,22 +29,33 @@ export default function DashboardClient() {
   const [saved, setSaved] = useState<string[]>([]);
   const [toggling, setToggling] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  // The page lives in the address (?page=6). The back button then
-  // returns to the exact page instead of the list starting over.
-  const rawPage = Number(searchParams.get('page') ?? '1');
-  const pageParam = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1;
+  // The page is local state, and the address carries it (?page=6)
+  // so back still returns to the exact page. Paging writes the
+  // address directly instead of asking the server, so the list
+  // changes at once with no loading flash in between.
+  const [page, setPage] = useState(initialPage);
   const pageSize = 4;
 
-  const goToPage = (n: number) => {
-    const params = new URLSearchParams(searchParams.toString());
+  const writePageToAddress = (n: number, replace = false) => {
+    const params = new URLSearchParams(window.location.search);
     if (n <= 1) params.delete('page');
     else params.set('page', String(n));
     const qs = params.toString();
-    router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+    if (replace) window.history.replaceState(null, '', url);
+    else window.history.pushState(null, '', url);
   };
+
+  // Stepping back through the pages updates the list from the
+  // address, so the phone back button works inside the list too.
+  useEffect(() => {
+    const onPop = () => {
+      const raw = Number(new URLSearchParams(window.location.search).get('page') ?? '1');
+      setPage(Number.isFinite(raw) && raw >= 1 ? Math.floor(raw) : 1);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,18 +115,22 @@ export default function DashboardClient() {
       firstFilters.current = false;
       return;
     }
-    const params = new URLSearchParams(window.location.search);
-    if (!params.has('page')) return;
-    params.delete('page');
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    setPage(1);
+    writePageToAddress(1, true);
     // Only the filters reset the page.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, city, beds, minRent, maxRent]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const page = Math.min(pageParam, totalPages);
-  const pageHomes = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const safePage = Math.min(page, totalPages);
+  const pageHomes = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
+  useReturnHome(pageHomes);
+
+  const goToPage = (n: number) => {
+    const next = Math.max(1, Math.min(n, totalPages));
+    setPage(next);
+    writePageToAddress(next);
+  };
 
   if (!loaded) return <p className="mt-6">Loading dashboard...</p>;
 
@@ -209,7 +224,7 @@ export default function DashboardClient() {
             <PropertyCard
               key={p.slug}
               p={p}
-              index={((page - 1) * pageSize + i) % 3}
+              index={((safePage - 1) * pageSize + i) % 3}
               showSave
               saved={saved.includes(p.slug)}
               saving={toggling === p.slug}
@@ -226,7 +241,7 @@ export default function DashboardClient() {
             />
           ))}
         </div>
-        <Pagination page={page} totalPages={totalPages} onPage={goToPage} />
+        <Pagination page={safePage} totalPages={totalPages} onPage={goToPage} />
         </>
       )}
     </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import PropertyCard from './PropertyCard';
+import { useReturnHome } from './useReturnHome';
 import { fetchAllProperties, fetchSavedSlugs, getCurrentUser, toggleSavedSlug, type AppUser } from '@/lib/queries';
 import type { Property } from '@/lib/properties';
 
@@ -23,6 +24,9 @@ export default function SavedClient() {
     })();
   }, []);
 
+  const homes = saved.map((slug) => allProperties.find((p) => p.slug === slug)).filter((p) => p !== undefined);
+  useReturnHome(homes);
+
   if (!loaded) return <p className="mt-6">Loading saved homes...</p>;
 
   if (!user) {
@@ -36,8 +40,6 @@ export default function SavedClient() {
       </div>
     );
   }
-
-  const homes = saved.map((slug) => allProperties.find((p) => p.slug === slug)).filter((p) => p !== undefined);
 
   return (
     <div>

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { eur, type Property } from '@/lib/properties';
 import InspectionFee from '@/components/InspectionFee';
 import Spinner from '@/components/Spinner';
+import { saveReturnHome } from '@/components/useReturnHome';
 
 export default function PropertyCard({
   p,
@@ -26,21 +27,23 @@ export default function PropertyCard({
   // login instead of the detail page. Logged-in pages leave this
   // off, so their cards still go to the detail page as before.
   const detailHref = gateToLogin ? '/login' : `/properties/${p.slug}`;
+  // Remember this home so pressing back glides to this exact card.
+  const open = () => saveReturnHome(p.slug);
   return (
-    <article className={`card-lift overflow-hidden rounded-2xl border border-line bg-white ${rise}`}>
-      <Link href={detailHref}>
+    <article id={`home-${p.slug}`} className={`card-lift overflow-hidden rounded-2xl border border-line bg-white ${rise}`}>
+      <Link href={detailHref} onClick={open}>
         <div className="relative h-44 overflow-hidden">
           <Image src={p.images[0]} alt={p.title} fill sizes="(max-width: 640px) 100vw, 33vw" className="img-zoom object-cover" />
         </div>
       </Link>
       <div className="p-4">
         <p className="text-xl font-extrabold text-velvet">{eur(p.rent)} <span className="text-sm font-semibold text-muted">/ month</span></p>
-        <Link href={detailHref} className="mt-1 block font-bold hover:underline">{p.title}</Link>
+        <Link href={detailHref} onClick={open} className="mt-1 block font-bold hover:underline">{p.title}</Link>
         <p className="mt-1 text-sm text-muted">{p.city} · {p.bedrooms} bed · {p.bathrooms} bath · {p.sizeM2} m2</p>
         <p className="mt-1 text-sm font-bold text-strawberry">Inspection fee <InspectionFee fee={p.fee} /> · Available</p>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Link href={detailHref} className="btn-press rounded-full border border-line bg-white px-4 py-2 text-sm font-bold text-velvet">View details</Link>
-          <Link href={detailHref} className="btn-press rounded-full bg-strawberry px-4 py-2 text-sm font-bold text-white">Book inspection</Link>
+          <Link href={detailHref} onClick={open} className="btn-press rounded-full border border-line bg-white px-4 py-2 text-sm font-bold text-velvet">View details</Link>
+          <Link href={detailHref} onClick={open} className="btn-press rounded-full bg-strawberry px-4 py-2 text-sm font-bold text-white">Book inspection</Link>
           {showSave && (
             <button
               onClick={onToggleSave}
