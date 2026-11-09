@@ -124,11 +124,22 @@ export default function WindowReveal() {
         </div>
 
         <div className="absolute left-1/2 top-1/2 w-[78%] max-w-[560px] -translate-x-1/2 -translate-y-1/2 sm:w-[64%] lg:w-[52%]">
-          {/* Reveal groove: a deep shadowed step between wall and frame,
-              so the window reads as set into the wall, not floating on it.
-              The wall texture runs continuously right up to this groove,
-              and the frame casts its shadow onto the wall below it. */}
-          <div className="relative bg-black/45 p-[10px] shadow-[0_24px_50px_rgba(0,0,0,0.5),inset_0_2px_8px_rgba(0,0,0,0.6)]">
+          {/* Reveal: the wall opening has depth, so the ring between wall
+              and frame is a recessed reveal, not a flat dark border. The
+              top of the reveal sits in shadow, the sides catch light, and
+              the thin light line on the top outer edge is the wall edge
+              catching light, so the frame reads as set into the wall
+              rather than hung on it. The wall texture runs continuously
+              right up to this groove. The big soft drop shadow below the
+              whole assembly is gone on purpose: a recessed window does
+              not cast one, only the reveal and the sill cast shadows. */}
+          <div
+            className="relative p-[10px] shadow-[0_-1px_0_rgba(255,255,255,0.14),0_1px_2px_rgba(0,0,0,0.4),0_10px_24px_rgba(0,0,0,0.35),inset_0_5px_12px_rgba(0,0,0,0.55),inset_0_-4px_10px_rgba(0,0,0,0.4),inset_4px_0_10px_rgba(0,0,0,0.3),inset_-4px_0_10px_rgba(0,0,0,0.3)]"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.34) 28%, rgba(0,0,0,0.26) 68%, rgba(0,0,0,0.5) 100%)',
+            }}
+          >
             {/* Brownish wooden frame: wood gradient with grain streaks.
                 The grain shows only on the frame ring, because the inner
                 opening covers the centre with the interior image. */}
@@ -204,15 +215,18 @@ export default function WindowReveal() {
             </div>
             </div>
             {/* Sill, same brownish wood as the frame, part of the same
-                assembly: no gap between frame and sill, with a top edge
-                shadow and a soft shadow falling onto the wall. */}
+                assembly: no gap between frame and sill. Its top surface
+                is lit, its underside is dark, and it sits on the wall,
+                so the wall directly beneath it is in hard shadow that
+                softens as it falls away. */}
             <div
-              className="mx-auto -mt-1 h-4 w-[108%] max-w-[600px] -translate-x-[4%] rounded-b-md shadow-[0_12px_25px_rgba(0,0,0,0.4),inset_0_2px_3px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.2)]"
+              className="mx-auto -mt-1 h-4 w-[108%] max-w-[600px] -translate-x-[4%] rounded-b-md shadow-[0_12px_25px_rgba(0,0,0,0.4),inset_0_2px_3px_rgba(0,0,0,0.3),inset_0_2px_0_rgba(255,255,255,0.28)]"
               style={{
                 backgroundImage:
                   'repeating-linear-gradient(93deg, rgba(60,35,15,0.22) 0 1px, transparent 1px 9px), linear-gradient(to bottom, #8a5a33, #6e4423)',
               }}
             />
+            <div aria-hidden="true" className="mx-auto h-[5px] w-[108%] max-w-[600px] -translate-x-[4%] bg-black/50 blur-[2px]" />
             <div aria-hidden="true" className="mx-auto mt-1 h-5 w-[80%] rounded-full bg-black/35 blur-md" />
           </div>
         </div>
