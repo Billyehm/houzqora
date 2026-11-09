@@ -108,7 +108,7 @@ function ReviewModal({ onClose }: { onClose: () => void }) {
       aria-label="Add a review"
     >
       <div
-        className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-4 shadow-2xl sm:p-6"
+        className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-3 shadow-2xl sm:p-6"
         onClick={(e) => e.stopPropagation()}
       >
         {saved ? (
@@ -129,7 +129,7 @@ function ReviewModal({ onClose }: { onClose: () => void }) {
         ) : (
           <>
             <div className="flex items-start justify-between">
-              <h3 className="text-lg font-extrabold text-velvet sm:text-xl">Add a review</h3>
+              <h3 className="text-base font-extrabold text-velvet sm:text-xl">Add a review</h3>
               <button
                 type="button"
                 onClick={onClose}
@@ -139,7 +139,7 @@ function ReviewModal({ onClose }: { onClose: () => void }) {
                 ×
               </button>
             </div>
-            <label className="mt-3 block text-sm font-bold text-velvet sm:mt-5" htmlFor="review-name">
+            <label className="mt-2 block text-xs font-bold text-velvet sm:mt-5 sm:text-sm" htmlFor="review-name">
               Your name
             </label>
             <input
@@ -150,7 +150,7 @@ function ReviewModal({ onClose }: { onClose: () => void }) {
               placeholder="e.g. Sanne K."
               className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2 text-sm outline-none focus:border-strawberry sm:py-2.5"
             />
-            <p className="mt-3 text-sm font-bold text-velvet sm:mt-4">Your rating</p>
+            <p className="mt-2 text-xs font-bold text-velvet sm:mt-4 sm:text-sm">Your rating</p>
             <div className="mt-1 flex gap-1" role="radiogroup" aria-label="Your rating">
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
@@ -160,7 +160,7 @@ function ReviewModal({ onClose }: { onClose: () => void }) {
                   aria-checked={rating === n}
                   aria-label={`${n} star${n > 1 ? 's' : ''}`}
                   onClick={() => setRating(n)}
-                  className={`btn-press p-1 text-2xl leading-none sm:text-3xl ${
+                  className={`btn-press p-1 text-xl leading-none sm:text-3xl ${
                     n <= rating ? 'text-[#E8A317]' : 'text-[#D8CFCB]'
                   }`}
                 >
@@ -168,18 +168,18 @@ function ReviewModal({ onClose }: { onClose: () => void }) {
                 </button>
               ))}
             </div>
-            <label className="mt-3 block text-sm font-bold text-velvet sm:mt-4" htmlFor="review-text">
+            <label className="mt-2 block text-xs font-bold text-velvet sm:mt-4 sm:text-sm" htmlFor="review-text">
               Your review
             </label>
             <textarea
               id="review-text"
-              rows={3}
+              rows={2}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="How was your inspection?"
               className="mt-1 w-full resize-none rounded-xl border border-line bg-white px-3 py-2 text-sm outline-none focus:border-strawberry sm:py-2.5"
             />
-            <div className="mt-4 flex gap-3 sm:mt-5">
+            <div className="mt-3 flex gap-3 sm:mt-5">
               <button
                 type="button"
                 onClick={() => setSaved(true)}
@@ -208,28 +208,28 @@ export default function ReviewsCarousel() {
   return (
     <div>
       <div className="flex flex-col overflow-hidden rounded-[2rem] border border-white/70 bg-white/55 shadow-[0_18px_50px_rgba(94,18,32,0.10)] backdrop-blur-md md:h-[176px] md:flex-row md:rounded-full">
-        <div className="flex shrink-0 flex-col items-start justify-center gap-1.5 bg-velvet px-5 py-3 text-white md:w-[22%] md:min-w-[188px] md:px-6 md:py-0 lg:w-[20%]">
+        <div className="flex shrink-0 flex-row items-center justify-between gap-3 bg-velvet px-4 py-2 text-white md:w-[22%] md:min-w-[188px] md:flex-col md:items-start md:justify-center md:gap-1.5 md:px-6 md:py-0 lg:w-[20%]">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-white/70">
             Customer reviews
           </p>
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="btn-press mt-1 rounded-full bg-strawberry px-5 py-2.5 text-sm font-bold text-white"
+            className="btn-press shrink-0 rounded-full bg-strawberry px-5 py-2.5 text-sm font-bold text-white md:mt-1"
           >
             Add review
           </button>
         </div>
-        <div className="reviews-marquee reviews-fade relative flex flex-1 items-center overflow-hidden py-3 md:py-0">
+        <div className="reviews-marquee reviews-fade relative flex flex-1 items-center overflow-hidden py-2 md:py-0">
           <div className="reviews-track flex w-max items-center">
             {[...REVIEWS, ...REVIEWS].map((review, i) => (
               <article
                 key={`${review.name}-${i}`}
                 aria-hidden={i >= REVIEWS.length}
-                className="mr-4 w-[300px] shrink-0 rounded-2xl border border-line bg-white/80 p-3 shadow-sm sm:p-4"
+                className="mr-4 w-[300px] shrink-0 rounded-2xl border border-line bg-white/80 p-2.5 shadow-sm sm:p-4"
               >
                 <div className="flex items-center gap-3">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-velvet text-xs font-extrabold text-white">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-velvet text-xs font-extrabold text-white sm:h-9 sm:w-9">
                     {initials(review.name)}
                   </span>
                   <span className="min-w-0">
@@ -243,7 +243,7 @@ export default function ReviewsCarousel() {
                     <Stars value={review.stars} className="mt-0.5 text-xs" />
                   </span>
                 </div>
-                <p className="mt-2 line-clamp-2 text-sm leading-snug text-ink/90">{review.text}</p>
+                <p className="mt-2 line-clamp-1 text-sm leading-snug text-ink/90 sm:line-clamp-2">{review.text}</p>
               </article>
             ))}
           </div>
