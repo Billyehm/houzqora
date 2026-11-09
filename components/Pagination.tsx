@@ -1,7 +1,8 @@
 'use client';
 
 /*
- * Pagination: Previous, page numbers, Next, and a page status line.
+ * Pagination: Previous, the current page only, an ellipsis when
+ * more pages follow, Next, and a page status line.
  * Only rendered when there is more than one page.
  */
 export default function Pagination({
@@ -24,18 +25,18 @@ export default function Pagination({
       >
         Previous
       </button>
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-        <button
-          key={n}
-          type="button"
-          onClick={() => onPage(n)}
-          className={`btn-press rounded-full px-4 py-2 text-sm font-bold ${
-            n === page ? 'bg-velvet text-white' : 'border border-line bg-white text-velvet'
-          }`}
-        >
-          {n}
-        </button>
-      ))}
+      <button
+        type="button"
+        aria-current="page"
+        className="btn-press rounded-full bg-velvet px-4 py-2 text-sm font-bold text-white"
+      >
+        {page}
+      </button>
+      {page < totalPages && (
+        <span className="px-1 text-sm font-bold text-muted" aria-hidden="true">
+          ...
+        </span>
+      )}
       <button
         type="button"
         disabled={page === totalPages}
