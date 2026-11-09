@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import AgentLink from './AgentLink';
 
 export default function Footer() {
   const pathname = usePathname();
@@ -22,7 +23,7 @@ export default function Footer() {
             <div className="mt-3 flex flex-col gap-2.5 text-sm text-white/80">
               <Link href="/how-it-works">How it works</Link>
               <Link href="/about">About</Link>
-              <Link href="/agents">Chat with an agent</Link>
+              <AgentLink href="/agents">Chat with an agent</AgentLink>
             </div>
           </div>
           <div>

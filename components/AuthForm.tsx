@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { clearPendingSlug, ensureProfile, fetchBookings, getCurrentUser, getPendingSlug, upsertBooking } from '@/lib/queries';
+import { clearPendingPath, clearPendingSlug, ensureProfile, fetchBookings, getCurrentUser, getPendingPath, getPendingSlug, upsertBooking } from '@/lib/queries';
 import PasswordField from '@/components/PasswordField';
 import Spinner from '@/components/Spinner';
 import CountryCodePicker, { COUNTRY_CODES, type CountryCode } from '@/components/CountryCodePicker';
@@ -67,6 +67,16 @@ export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'log
       // in the account metadata, so a first login after email
       // confirmation still saves the signup phone instead of losing it.
       if (user) await ensureProfile(user, fullPhone || user.phone || '');
+      // A pending page wins over a pending home: it is the page the
+      // visitor was trying to reach before logging in, such as the
+      // agents page after tapping Contact agent while logged out.
+      const pendingPath = getPendingPath();
+      if (pendingPath && user) {
+        clearPendingPath();
+        clearPendingSlug();
+        router.push(pendingPath);
+        return;
+      }
       const pending = getPendingSlug();
       if (pending && user) {
         const bookings = await fetchBookings(user.id);

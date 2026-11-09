@@ -1,4 +1,10 @@
+'use client';
+
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getCurrentUser, setPendingPath, type AppUser } from '@/lib/queries';
+import Spinner from '@/components/Spinner';
 
 const agents = [
   { label: 'Chat Agent 1', wa: '2349074451933' },
@@ -14,12 +20,44 @@ function WhatsAppIcon() {
   );
 }
 
-export default function Agents({ searchParams }: { searchParams: { slug?: string; title?: string; city?: string } }) {
-  const title = searchParams.title || '';
-  const city = searchParams.city || '';
+function AgentsContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [checked, setChecked] = useState(false);
+
+  const title = searchParams.get('title') || '';
+  const city = searchParams.get('city') || '';
+  // The draft still goes to WhatsApp in the link itself, so tapping
+  // an agent opens WhatsApp with it ready. It is no longer shown
+  // on this page.
   const draft = title && city
     ? `Hi HOUZQORA, I want to book a house inspection for ${title} in ${city}. Please help me with the next steps.`
     : 'Hi HOUZQORA, I want to book a house inspection. Please help me with the next steps.';
+
+  // Fallback only: the real auth door is the click on Contact
+  // agent, Message agency, or Chat with an agent, which checks
+  // login straight away. This check only covers a direct visit
+  // to this page, so a visitor who types the address while
+  // logged out still goes to login first and comes back here
+  // with the home still carried in the link.
+  useEffect(() => {
+    (async () => {
+      const u = await getCurrentUser();
+      if (!u) {
+        const query = searchParams.toString();
+        setPendingPath(query ? `/agents?${query}` : '/agents');
+        router.push('/login');
+        return;
+      }
+      setUser(u);
+      setChecked(true);
+    })();
+  }, [router, searchParams]);
+
+  if (!checked || !user) {
+    return <p className="mt-6 flex items-center gap-2"><Spinner />Loading...</p>;
+  }
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -45,15 +83,17 @@ export default function Agents({ searchParams }: { searchParams: { slug?: string
         ))}
       </div>
 
-      <div className="mt-6 rounded-2xl border border-line bg-white p-5">
-        <p className="text-xs font-extrabold uppercase tracking-wide text-muted">Message that will open in WhatsApp</p>
-        <p className="mt-2 text-sm text-ink">{draft}</p>
-        <p className="mt-2 text-sm text-muted">You can edit it in WhatsApp before you send it.</p>
-      </div>
-
       <Link href="/" className="btn-press mt-6 inline-block rounded-full border border-line bg-white px-5 py-3 font-bold text-velvet">
         Back to home
       </Link>
     </div>
+  );
+}
+
+export default function Agents() {
+  return (
+    <Suspense fallback={<p className="mt-6 flex items-center gap-2"><Spinner />Loading...</p>}>
+      <AgentsContent />
+    </Suspense>
   );
 }

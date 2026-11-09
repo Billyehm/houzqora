@@ -215,6 +215,30 @@ export function clearPendingSlug() {
   window.localStorage.removeItem(PENDING_KEY);
 }
 
+// Pending path is the same idea for a whole page, not just a home:
+// the page a visitor was trying to reach before logging in, so
+// they land back on it afterwards. Used for the agents page, so a
+// visitor who taps Contact agent while logged out goes through
+// login first and then lands back on the agents page.
+const PENDING_PATH_KEY = 'houzqora_pending_path';
+
+export function getPendingPath(): string | null {
+  if (typeof window === 'undefined') return null;
+  const path = window.localStorage.getItem(PENDING_PATH_KEY);
+  return path && path.startsWith('/') ? path : null;
+}
+
+export function setPendingPath(path: string) {
+  if (typeof window === 'undefined') return;
+  if (!path.startsWith('/')) return;
+  window.localStorage.setItem(PENDING_PATH_KEY, path);
+}
+
+export function clearPendingPath() {
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem(PENDING_PATH_KEY);
+}
+
 export async function sendMessage(name: string, email: string, message: string) {
   const { error } = await supabase.from('messages').insert({ name, email, message });
   if (error) throw error;

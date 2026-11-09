@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { eur } from '@/lib/properties';
 import { fetchBookings, fetchAllProperties, getCurrentUser, upsertBooking, type AppUser, type BookingState } from '@/lib/queries';
 import Spinner from '@/components/Spinner';
+import AgentLink from './AgentLink';
 import InspectionFee from '@/components/InspectionFee';
 import DiscountBookingsCard from '@/components/DiscountBookingsCard';
 import type { Property } from '@/lib/properties';
@@ -85,7 +86,7 @@ export default function BookingsClient() {
             </div>
             <div>
               {state.paid && <p className="text-sm font-extrabold text-green-700">Request recorded</p>}
-              <div className="mt-2"><Link href={`/agents?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(p.title)}&city=${encodeURIComponent(p.city)}`} className="btn-press inline-block rounded-full border border-line px-4 py-2 text-sm font-bold text-velvet">Message agency</Link></div>
+              <div className="mt-2"><AgentLink href={`/agents?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(p.title)}&city=${encodeURIComponent(p.city)}`} className="btn-press inline-block rounded-full border border-line px-4 py-2 text-sm font-bold text-velvet">Message agency</AgentLink></div>
             </div>
           </article>
         );

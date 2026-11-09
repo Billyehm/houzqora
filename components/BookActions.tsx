@@ -1,14 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { fetchBookings, getCurrentUser, setPendingSlug, upsertBooking } from '@/lib/queries';
+import { fetchBookings, getCurrentUser, setPendingPath, setPendingSlug, upsertBooking } from '@/lib/queries';
 import Spinner from '@/components/Spinner';
 
 export default function BookActions({ slug, title, city }: { slug: string; title: string; city: string }) {
   const router = useRouter();
-  const [busy, setBusy] = useState<'pay' | 'book' | null>(null);
+  const [busy, setBusy] = useState<'pay' | 'book' | 'agent' | null>(null);
 
   const ensureBooking = async () => {
     const user = await getCurrentUser();
@@ -41,8 +40,25 @@ export default function BookActions({ slug, title, city }: { slug: string; title
   };
 
   // The agents page builds the WhatsApp draft itself, so this
-  // button only needs to carry the home along with it.
+  // button only needs to carry the home along with it. Auth door:
+  // a visitor who is not signed in goes to login first, then
+  // comes back to the agents page with the home still carried.
   const agentsHref = `/agents?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(title)}&city=${encodeURIComponent(city)}`;
+
+  const contactAgent = async () => {
+    setBusy('agent');
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        setPendingPath(agentsHref);
+        router.push('/login');
+        return;
+      }
+      router.push(agentsHref);
+    } finally {
+      setBusy(null);
+    }
+  };
 
   return (
     <div className="flex flex-wrap gap-3">
@@ -52,7 +68,9 @@ export default function BookActions({ slug, title, city }: { slug: string; title
       <button onClick={book} disabled={busy !== null} className="btn-press flex items-center gap-2 rounded-full bg-velvet px-5 py-3 font-bold text-white disabled:opacity-60">
         {busy === 'book' && <Spinner />}Book inspection
       </button>
-      <Link href={agentsHref} className="btn-press rounded-full border border-white/40 px-5 py-3 font-bold text-white">Contact agent</Link>
+      <button onClick={contactAgent} disabled={busy !== null} className="btn-press flex items-center gap-2 rounded-full border border-white/40 px-5 py-3 font-bold text-white disabled:opacity-60">
+        {busy === 'agent' && <Spinner />}Contact agent
+      </button>
     </div>
   );
 }
