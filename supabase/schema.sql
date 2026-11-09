@@ -124,3 +124,28 @@ alter table public.user_discounts enable row level security;
 
 drop policy if exists "user_discounts own" on public.user_discounts;
 create policy "user_discounts own" on public.user_discounts for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Payments, for the real Mollie and Stripe pipeline. One row per
+-- payment attempt, created by the server when checkout starts and
+-- only marked paid by a provider webhook after the provider confirms
+-- the money. The fee itself is never taken from the browser: the
+-- server reads it from the properties table. Row level security is
+-- read only for the owner; only the server, with the service role
+-- key, writes payments, so a browser can never mark itself paid.
+create table if not exists public.payments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  property_slug text not null references public.properties (slug) on delete cascade,
+  provider text not null check (provider in ('mollie', 'stripe')),
+  method text not null check (method in ('ideal', 'card')),
+  provider_payment_id text not null unique,
+  amount_cents int not null,
+  status text not null default 'pending' check (status in ('pending', 'paid', 'failed', 'cancelled')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.payments enable row level security;
+
+drop policy if exists "payments own read" on public.payments;
+create policy "payments own read" on public.payments for select using (auth.uid() = user_id);

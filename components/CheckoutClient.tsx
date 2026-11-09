@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { eur, type Property } from '@/lib/properties';
+import { supabase } from '@/lib/supabase';
 import { fetchBookings, getCurrentUser, upsertBooking, type AppUser } from '@/lib/queries';
 import InspectionFee from '@/components/InspectionFee';
 import Spinner from '@/components/Spinner';
@@ -10,7 +11,8 @@ import Spinner from '@/components/Spinner';
 export default function CheckoutClient({ p }: { p: Property }) {
   const router = useRouter();
   const [processing, setProcessing] = useState(false);
-  const [done, setDone] = useState(false);
+  const [method, setMethod] = useState<'ideal' | 'card'>('ideal');
+  const [error, setError] = useState('');
   const [user, setUser] = useState<AppUser | null>(null);
   const [checked, setChecked] = useState(false);
 
@@ -38,24 +40,40 @@ export default function CheckoutClient({ p }: { p: Property }) {
     );
   }
 
-  const confirm = async () => {
+  // Pay, not just record. This creates a real payment with Mollie
+  // for iDEAL or Stripe for Card, then sends the customer to the
+  // provider to pay there. No card or bank details pass through
+  // this page. The booking is only marked paid later, by the
+  // provider webhook, after the provider confirms the money.
+  const pay = async () => {
+    setError('');
     setProcessing(true);
-    const bookings = await fetchBookings(user.id);
-    await upsertBooking(user.id, p.slug, { paid: true, slot: bookings[p.slug]?.slot || '' });
-    setProcessing(false);
-    setDone(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        router.push('/login');
+        return;
+      }
+      const res = await fetch('/api/payments/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ slug: p.slug, method }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.checkoutUrl) {
+        setError(data?.error || 'This payment could not be started. Please try again.');
+        setProcessing(false);
+        return;
+      }
+      window.location.href = data.checkoutUrl;
+    } catch {
+      setError('This payment could not be started. Please try again.');
+      setProcessing(false);
+    }
   };
-
-  if (done) {
-    return (
-      <div className="rounded-2xl border border-line bg-white p-6">
-        <h2 className="text-xl font-extrabold text-velvet">Inspection request recorded</h2>
-        <p className="mt-2 text-muted">Your request for this home is saved in your bookings. Payment collection with Mollie or Stripe with iDEAL will be added next, and the agency will confirm the inspection fee step with you.</p>
-        <p className="mt-3 text-sm">Next step: pick a viewing slot in Bookings.</p>
-        <button onClick={() => router.push('/bookings')} className="btn-press mt-4 rounded-full bg-strawberry px-5 py-3 font-bold text-white">Go to Bookings</button>
-      </div>
-    );
-  }
 
   return (
     <div className="rounded-2xl border border-line bg-white p-6">
@@ -65,9 +83,14 @@ export default function CheckoutClient({ p }: { p: Property }) {
         <p className="flex justify-between"><span>Remaining to secure, first month plus deposit</span><b>{eur(p.securing)}</b></p>
       </div>
       <p className="mt-4 text-sm text-muted">Confirming the inspection does not reserve this home. It covers arranging and conducting your viewing.</p>
-      <button onClick={confirm} disabled={processing} className="btn-press mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">
+      <div className="mt-4 flex gap-2">
+        <button type="button" onClick={() => setMethod('ideal')} disabled={processing} className={`btn-press flex-1 rounded-full px-5 py-3 font-bold ${method === 'ideal' ? 'bg-velvet text-white' : 'border border-line bg-white text-velvet'} disabled:opacity-60`}>iDEAL</button>
+        <button type="button" onClick={() => setMethod('card')} disabled={processing} className={`btn-press flex-1 rounded-full px-5 py-3 font-bold ${method === 'card' ? 'bg-velvet text-white' : 'border border-line bg-white text-velvet'} disabled:opacity-60`}>Card</button>
+      </div>
+      {error && <p className="mt-3 text-sm font-bold text-strawberry">{error}</p>}
+      <button onClick={pay} disabled={processing} className="btn-press mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">
         {processing && <Spinner />}
-        {processing ? 'Recording...' : (<>Confirm inspection, fee <InspectionFee fee={p.fee} /></>)}
+        {processing ? 'Starting payment...' : (<>Pay inspection fee <InspectionFee fee={p.fee} /></>)}
       </button>
     </div>
   );

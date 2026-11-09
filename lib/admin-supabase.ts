@@ -2,8 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 
 // Server only. This file must never be imported by a client component,
 // because the service role key bypasses row level security and must
-// never reach the browser. It is only used by server actions in
-// lib/admin-actions.ts, after the admin login has been checked.
+// never reach the browser. It is only used by server actions: in
+// lib/admin-actions.ts, after the admin login has been checked, and in
+// lib/reset-password.ts, only to check if an email has an account
+// and to send that account a reset link.
 export function getAdminSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

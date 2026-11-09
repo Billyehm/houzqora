@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { requestPasswordReset } from '@/lib/reset-password';
 import Spinner from '@/components/Spinner';
 
 export default function ForgotPassword() {
@@ -17,11 +17,14 @@ export default function ForgotPassword() {
     try {
       // The reset link lands on /reset-password, which is covered
       // by the /** wildcard already in the Supabase Redirect URLs,
-      // so no dashboard change is needed for this flow.
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      if (resetError) throw resetError;
+      // so no dashboard change is needed for this flow. The server
+      // action checks first if this email has an account. If it
+      // does not, it returns an error and no link is sent.
+      const result = await requestPasswordReset(email, `${window.location.origin}/reset-password`);
+      if (!result.ok) {
+        setError(result.error || 'Something went wrong. Please try again.');
+        return;
+      }
       setSent(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Something went wrong. Please try again.');
@@ -52,6 +55,9 @@ export default function ForgotPassword() {
             </button>
             <p className="mt-3 text-center text-sm text-muted">
               <a href="/login" className="font-bold text-velvet">Back to log in</a>
+            </p>
+            <p className="mt-3 text-center text-sm text-muted">
+              No account yet? <a href="/signup" className="font-bold text-velvet">Sign up</a>
             </p>
           </>
         )}

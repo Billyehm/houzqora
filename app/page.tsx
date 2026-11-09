@@ -23,7 +23,7 @@ export default async function Home() {
         <p className="mt-4 text-sm text-muted">Verified listings · Clear fees · Inspection first, decision second</p>
       </section>
 
-      <section className="mt-10">
+      <section id="featured-homes" className="mt-10 scroll-mt-24">
         <h2 className="text-2xl font-extrabold text-velvet">Featured homes</h2>
         <p className="mt-1 text-muted">Search by city and bedrooms. Tap a home to see its inspection fee and securing amount.</p>
         <div className="mt-4"><FilterGrid properties={properties} /></div>
@@ -43,7 +43,7 @@ export default async function Home() {
         <p className="mx-auto mt-2 max-w-md text-muted">Clear rent in euros per month, a clear inspection fee, and a clear amount to secure the home.</p>
       </section>
 
-      <section className="mt-12">
+      <section id="how-it-works" className="mt-12 scroll-mt-24">
         <h2 className="text-2xl font-extrabold text-velvet">How it works</h2>
         <div className="mt-3 border-t-[3px] border-dotted border-strawberry/70" />
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -62,7 +62,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mt-12 rounded-2xl border border-line bg-white p-6">
+      <section id="trust" className="mt-12 scroll-mt-24 rounded-2xl border border-line bg-white p-6">
         <h2 className="text-2xl font-extrabold text-velvet">Trust and transparency</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <div><p className="font-bold">What the fee covers</p><p className="mt-1 text-sm text-muted">Arranging and conducting your viewing, plus confirmation after your inspection request is recorded.</p></div>
