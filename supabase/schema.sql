@@ -52,19 +52,10 @@ create table if not exists public.bookings (
   unique (user_id, property_slug)
 );
 
-create table if not exists public.messages (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  email text not null,
-  message text not null,
-  created_at timestamptz not null default now()
-);
-
 alter table public.profiles enable row level security;
 alter table public.properties enable row level security;
 alter table public.saved_homes enable row level security;
 alter table public.bookings enable row level security;
-alter table public.messages enable row level security;
 
 -- Properties are public to read, so the landing page and detail pages
 -- work without a login. Everything else is owned by the signed in user.
@@ -79,11 +70,6 @@ create policy "saved_homes own" on public.saved_homes for all using (auth.uid() 
 
 drop policy if exists "bookings own" on public.bookings;
 create policy "bookings own" on public.bookings for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-
--- Contact messages can be inserted by anyone, read by no one from the
--- client. The agency reads them in the Supabase dashboard.
-drop policy if exists "messages insert" on public.messages;
-create policy "messages insert" on public.messages for insert with check (true);
 
 insert into public.properties
   (slug, title, city, neighbourhood, type, bedrooms, bathrooms, toilets, size_m2, rent, fee, securing, furnished, parking, description, amenities, images)

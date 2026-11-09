@@ -40,7 +40,7 @@ export async function requestPasswordReset(
   try {
     supabase = getAdminSupabase();
   } catch {
-    return { ok: false, error: 'Password reset is not set up yet. Please contact us through the contact form.' };
+    return { ok: false, error: 'Password reset is not set up yet. Please try again later.' };
   }
 
   try {

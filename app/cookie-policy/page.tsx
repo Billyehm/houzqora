@@ -49,7 +49,6 @@ export default function CookiePolicy() {
           <Link href="/terms" className="text-strawberry">Terms and conditions</Link>
           <Link href="/inspection-policy" className="text-strawberry">Inspection policy</Link>
           <Link href="/cookie-settings" className="text-strawberry">Cookie settings</Link>
-          <Link href="/contact" className="text-strawberry">Contact</Link>
         </div>
       </div>
     </div>

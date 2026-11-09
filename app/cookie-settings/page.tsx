@@ -14,7 +14,6 @@ export default function CookieSettingsPage() {
           <Link href="/terms" className="text-strawberry">Terms and conditions</Link>
           <Link href="/inspection-policy" className="text-strawberry">Inspection policy</Link>
           <Link href="/cookie-policy" className="text-strawberry">Cookie Policy</Link>
-          <Link href="/contact" className="text-strawberry">Contact</Link>
         </div>
       </div>
     </div>

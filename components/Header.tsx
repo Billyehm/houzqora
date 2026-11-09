@@ -91,7 +91,7 @@ function pageSection(pathname: string): { title: string; links: MenuLink[] } {
       title: 'Agents',
       links: [
         { href: '/', label: 'Back to home' },
-        { href: '/contact', label: 'Contact' },
+        { href: '/how-it-works', label: 'How it works' },
       ],
     };
   }
@@ -122,23 +122,13 @@ function pageSection(pathname: string): { title: string; links: MenuLink[] } {
       ],
     };
   }
-  if (pathname === '/contact') {
-    return {
-      title: 'Contact',
-      links: [
-        { href: '/agents', label: 'Chat with an agent' },
-        { href: '/about', label: 'About' },
-        { href: '/how-it-works', label: 'How it works' },
-      ],
-    };
-  }
   if (pathname === '/about' || pathname === '/how-it-works') {
     return {
       title: 'Explore',
       links: [
         { href: '/#featured-homes', label: 'Featured homes' },
         { href: '/', label: 'Home' },
-        { href: '/contact', label: 'Contact' },
+        { href: '/agents', label: 'Chat with an agent' },
       ],
     };
   }
@@ -160,7 +150,7 @@ function pageSection(pathname: string): { title: string; links: MenuLink[] } {
       { href: '/', label: 'Home' },
       { href: '/how-it-works', label: 'How it works' },
       { href: '/about', label: 'About' },
-      { href: '/contact', label: 'Contact' },
+      { href: '/agents', label: 'Chat with an agent' },
     ],
   };
 }
@@ -242,7 +232,6 @@ export default function Header() {
     { href: '/', label: 'Home' },
     { href: '/how-it-works', label: 'How it works' },
     { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' },
     { href: '/agents', label: 'Chat with an agent' },
   ];
   const seen = new Set<string>([pathname, ...section.links.map((l) => l.href)]);

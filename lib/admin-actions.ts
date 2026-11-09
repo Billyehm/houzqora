@@ -60,19 +60,6 @@ export async function uploadPropertyImageAdmin(formData: FormData): Promise<{ ok
   }
 }
 
-export type AdminMessage = { id: string; name: string; email: string; message: string; created_at: string };
-
-export async function fetchMessagesAdmin(): Promise<{ ok: boolean; messages: AdminMessage[]; error?: string }> {
-  if (!(await isAdmin())) return { ok: false, messages: [], error: 'Not signed in as admin.' };
-  try {
-    const { data, error } = await getAdminSupabase().from('messages').select('id, name, email, message, created_at').order('created_at', { ascending: false });
-    if (error) throw error;
-    return { ok: true, messages: (data || []) as AdminMessage[] };
-  } catch (e) {
-    return { ok: false, messages: [], error: e instanceof Error ? e.message : 'Could not load messages.' };
-  }
-}
-
 export async function deletePropertyAdmin(slug: string): Promise<Result> {
   if (!(await isAdmin())) return { ok: false, error: 'Not signed in as admin.' };
   try {

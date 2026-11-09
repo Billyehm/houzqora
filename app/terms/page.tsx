@@ -15,7 +15,7 @@ export default function Terms() {
         <li>Give correct contact details when you sign up, and keep them up to date.</li>
         <li>Keep your password private. You are responsible for what happens on your account.</li>
         <li>Use the service honestly. Do not pretend to be someone else, and do not try to break, copy, or misuse the site.</li>
-        <li>Tell us straight away through the contact form if you think someone else has used your account.</li>
+        <li>Tell us straight away through the agents page if you think someone else has used your account.</li>
       </ul>
 
       <h2 className="mt-6 text-xl font-extrabold text-velvet">3. Listings, prices, and availability</h2>
@@ -39,11 +39,11 @@ export default function Terms() {
         <li>You pay by iDEAL through Mollie, or by card through Stripe. You pay on the provider page. No card or bank details pass through HOUZQORA.</li>
         <li>The fee is read from our database at checkout, never from your browser.</li>
         <li>A booking is marked paid only after the payment provider confirms the payment to us. A payment that fails or expires does not mark a booking as paid.</li>
-        <li>If a payment fails, you can try again. If you are charged and your booking still shows as unpaid, contact us with the date, the amount, and the home, and we will check it with the provider.</li>
+        <li>If a payment fails, you can try again. If you are charged and your booking still shows as unpaid, contact an agent with the date, the amount, and the home, and we will check it with the provider.</li>
       </ul>
 
       <h2 className="mt-6 text-xl font-extrabold text-velvet">6. Viewings</h2>
-      <p className="mt-2 text-muted">After payment, pick a viewing slot in Bookings and follow the instructions shown there. If you cannot attend, tell us as soon as you can through the contact form or through the agents page. The inspection fee is still non-refundable, as set out in section 4.</p>
+      <p className="mt-2 text-muted">After payment, pick a viewing slot in Bookings and follow the instructions shown there. If you cannot attend, tell us as soon as you can through the agents page. The inspection fee is still non-refundable, as set out in section 4.</p>
 
       <h2 className="mt-6 text-xl font-extrabold text-velvet">7. Inspection discount</h2>
       <ul className="mt-2 list-disc space-y-1 pl-5 text-muted">
@@ -73,7 +73,6 @@ export default function Terms() {
           <Link href="/inspection-policy" className="text-strawberry">Inspection policy</Link>
           <Link href="/cookie-policy" className="text-strawberry">Cookie Policy</Link>
           <Link href="/cookie-settings" className="text-strawberry">Cookie settings</Link>
-          <Link href="/contact" className="text-strawberry">Contact</Link>
         </div>
       </div>
     </div>

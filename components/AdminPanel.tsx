@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { adminLogout } from '@/lib/admin-auth';
-import { createPropertyAdmin, deletePropertyAdmin, fetchMessagesAdmin, updatePropertyAdmin, uploadPropertyImageAdmin, type AdminMessage } from '@/lib/admin-actions';
+import { createPropertyAdmin, deletePropertyAdmin, updatePropertyAdmin, uploadPropertyImageAdmin } from '@/lib/admin-actions';
 import { fetchAllProperties } from '@/lib/queries';
 import Spinner from '@/components/Spinner';
 import type { Property } from '@/lib/properties';
@@ -27,19 +27,10 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
   const [editing, setEditing] = useState<string | null>(null);
   const [amenitiesText, setAmenitiesText] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [messages, setMessages] = useState<AdminMessage[]>([]);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetchMessagesAdmin().then((result) => {
-      if (!cancelled && result.ok) setMessages(result.messages);
-    });
-    return () => { cancelled = true; };
-  }, []);
 
   const set = (key: keyof Property, value: string | number) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -206,17 +197,6 @@ export default function AdminPanel({ initialProperties }: { initialProperties: P
               <button onClick={() => startEdit(p)} className="btn-press rounded-full border border-line px-4 py-2 font-bold text-velvet">Edit</button>
               <button onClick={() => remove(p.slug)} disabled={deleting === p.slug} className="btn-press flex items-center gap-2 rounded-full bg-strawberry px-4 py-2 font-bold text-white disabled:opacity-60">{deleting === p.slug && <Spinner className="h-3.5 w-3.5" />}Delete</button>
             </span>
-          </div>
-        ))}
-      </div>
-
-      <h2 className="mt-8 text-xl font-extrabold text-velvet">Messages ({messages.length})</h2>
-      <div className="mt-3 space-y-2">
-        {messages.length === 0 && <p className="text-sm text-muted">No messages yet.</p>}
-        {messages.map((m) => (
-          <div key={m.id} className="rounded-xl border border-line bg-white px-4 py-3 text-sm">
-            <p><span className="font-bold">{m.name}</span> <span className="text-muted">· {m.email} · {new Date(m.created_at).toLocaleDateString('en-GB')}</span></p>
-            <p className="mt-1 break-words">{m.message}</p>
           </div>
         ))}
       </div>

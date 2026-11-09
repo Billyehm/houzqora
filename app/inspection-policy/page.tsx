@@ -15,7 +15,6 @@ export default function InspectionPolicy() {
           <Link href="/terms" className="text-strawberry">Terms and conditions</Link>
           <Link href="/cookie-policy" className="text-strawberry">Cookie Policy</Link>
           <Link href="/cookie-settings" className="text-strawberry">Cookie settings</Link>
-          <Link href="/contact" className="text-strawberry">Contact</Link>
         </div>
       </div>
     </div>

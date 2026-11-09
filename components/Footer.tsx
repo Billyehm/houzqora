@@ -17,20 +17,13 @@ export default function Footer() {
           Verified rentals in the Netherlands. Clear fees, honest next steps.
         </p>
 
-        <div className="mt-8 grid grid-cols-2 gap-8 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-2 gap-8">
           <div>
             <p className="font-bold text-white">Platform</p>
             <div className="mt-3 flex flex-col gap-2.5 text-sm text-white/80">
               <Link href="/how-it-works">How it works</Link>
               <Link href="/about">About</Link>
               <AgentLink href="/agents">Chat with an agent</AgentLink>
-            </div>
-          </div>
-          <div>
-            <p className="font-bold text-white">Contact</p>
-            <div className="mt-3 flex flex-col gap-2.5 text-sm text-white/80">
-              <Link href="/contact">Contact us</Link>
-              <Link href="/contact">Help and privacy requests</Link>
             </div>
           </div>
           <div>

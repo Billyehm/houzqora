@@ -31,9 +31,6 @@ export default function NotFound() {
         <Link href="/" className="btn-press rounded-full bg-strawberry px-6 py-3 font-bold text-white shadow-[0_2px_0_rgba(94,18,32,0.3)]">
           Go home
         </Link>
-        <Link href="/contact" className="btn-press rounded-full border border-line bg-white px-6 py-3 font-bold text-velvet">
-          Contact us
-        </Link>
       </div>
 
       <p className="mt-8 text-sm font-bold text-strawberry">HOUZQORA · Verified rentals in the Netherlands</p>

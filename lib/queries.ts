@@ -257,8 +257,3 @@ export function clearPendingPath() {
   if (typeof window === 'undefined') return;
   window.localStorage.removeItem(PENDING_PATH_KEY);
 }
-
-export async function sendMessage(name: string, email: string, message: string) {
-  const { error } = await supabase.from('messages').insert({ name, email, message });
-  if (error) throw error;
-}
