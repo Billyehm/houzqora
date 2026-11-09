@@ -11,7 +11,7 @@ import Spinner from '@/components/Spinner';
 export default function CheckoutClient({ p }: { p: Property }) {
   const router = useRouter();
   const [processing, setProcessing] = useState(false);
-  const [method, setMethod] = useState<'ideal' | 'card'>('ideal');
+  const [method, setMethod] = useState<'ideal' | 'card'>('card');
   const [error, setError] = useState('');
   const [user, setUser] = useState<AppUser | null>(null);
   const [checked, setChecked] = useState(false);
@@ -84,8 +84,8 @@ export default function CheckoutClient({ p }: { p: Property }) {
       </div>
       <p className="mt-4 text-sm text-muted">Confirming the inspection does not reserve this home. It covers arranging and conducting your viewing.</p>
       <div className="mt-4 flex gap-2">
-        <button type="button" onClick={() => setMethod('ideal')} disabled={processing} className={`btn-press flex-1 rounded-full px-5 py-3 font-bold ${method === 'ideal' ? 'bg-velvet text-white' : 'border border-line bg-white text-velvet'} disabled:opacity-60`}>iDEAL</button>
         <button type="button" onClick={() => setMethod('card')} disabled={processing} className={`btn-press flex-1 rounded-full px-5 py-3 font-bold ${method === 'card' ? 'bg-velvet text-white' : 'border border-line bg-white text-velvet'} disabled:opacity-60`}>Card</button>
+        <button type="button" onClick={() => setMethod('ideal')} disabled={processing} className={`btn-press flex-1 rounded-full px-5 py-3 font-bold ${method === 'ideal' ? 'bg-velvet text-white' : 'border border-line bg-white text-velvet'} disabled:opacity-60`}>iDEAL</button>
       </div>
       {error && <p className="mt-3 text-sm font-bold text-strawberry">{error}</p>}
       <button onClick={pay} disabled={processing} className="btn-press mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">
