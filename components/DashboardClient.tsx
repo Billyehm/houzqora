@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import PropertyCard from './PropertyCard';
 import PlaceSearch from './PlaceSearch';
@@ -28,8 +29,22 @@ export default function DashboardClient() {
   const [saved, setSaved] = useState<string[]>([]);
   const [toggling, setToggling] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [page, setPage] = useState(1);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // The page lives in the address (?page=6). The back button then
+  // returns to the exact page instead of the list starting over.
+  const rawPage = Number(searchParams.get('page') ?? '1');
+  const pageParam = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1;
   const pageSize = 4;
+
+  const goToPage = (n: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (n <= 1) params.delete('page');
+    else params.set('page', String(n));
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -79,11 +94,27 @@ export default function DashboardClient() {
     });
   }, [properties, search, city, beds, minRent, maxRent]);
 
+  // A filter change starts the list over at page 1. The first run
+  // is skipped so a shared ?page= link still opens on that page.
+  // The page is clamped to the pages that exist, so a short list
+  // after loading never needs a reset of its own.
+  const firstFilters = useRef(true);
   useEffect(() => {
-    setPage(1);
-  }, [properties, search, city, beds, minRent, maxRent]);
+    if (firstFilters.current) {
+      firstFilters.current = false;
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('page')) return;
+    params.delete('page');
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    // Only the filters reset the page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, city, beds, minRent, maxRent]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const page = Math.min(pageParam, totalPages);
   const pageHomes = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   if (!loaded) return <p className="mt-6">Loading dashboard...</p>;
@@ -195,7 +226,7 @@ export default function DashboardClient() {
             />
           ))}
         </div>
-        <Pagination page={page} totalPages={totalPages} onPage={setPage} />
+        <Pagination page={page} totalPages={totalPages} onPage={goToPage} />
         </>
       )}
     </div>

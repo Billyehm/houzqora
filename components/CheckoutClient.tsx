@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { eur, type Property } from '@/lib/properties';
 import { supabase } from '@/lib/supabase';
-import { fetchBookings, getCurrentUser, upsertBooking, type AppUser } from '@/lib/queries';
+import { fetchBookings, getCurrentUser, setPendingPath, upsertBooking, type AppUser } from '@/lib/queries';
 import InspectionFee from '@/components/InspectionFee';
 import Spinner from '@/components/Spinner';
 
@@ -35,7 +35,7 @@ export default function CheckoutClient({ p }: { p: Property }) {
       <div className="rounded-2xl border border-line bg-white p-6">
         <h2 className="text-xl font-extrabold text-velvet">Please log in first</h2>
         <p className="mt-2 text-muted">Checkout needs a signed in account.</p>
-        <a href="/login" className="btn-press mt-4 inline-block rounded-full bg-velvet px-5 py-3 font-bold text-white">Log in</a>
+        <button onClick={() => { setPendingPath(`/checkout/${p.slug}`); router.push('/login'); }} className="btn-press mt-4 inline-block rounded-full bg-velvet px-5 py-3 font-bold text-white">Log in</button>
       </div>
     );
   }
@@ -51,6 +51,9 @@ export default function CheckoutClient({ p }: { p: Property }) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        // The session ran out mid-checkout: remember this page so
+        // logging in brings the visitor straight back here.
+        setPendingPath(`/checkout/${p.slug}`);
         router.push('/login');
         return;
       }

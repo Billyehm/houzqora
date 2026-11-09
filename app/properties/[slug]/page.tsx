@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Gallery from '@/components/Gallery';
+import BackButton from '@/components/BackButton';
 import BookActions from '@/components/BookActions';
 import InspectionFee from '@/components/InspectionFee';
 import { eur, properties } from '@/lib/properties';
@@ -14,6 +15,7 @@ export default async function PropertyPage({ params }: { params: { slug: string 
   if (!p) notFound();
   return (
     <div className="min-w-0">
+      <BackButton />
       <div className="mt-4 grid min-w-0 gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="min-w-0">
           <Gallery images={p.images} title={p.title} />

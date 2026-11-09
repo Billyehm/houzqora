@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { clearPendingPath, clearPendingSlug, ensureProfile, fetchBookings, getCurrentUser, getPendingPath, getPendingSlug, upsertBooking } from '@/lib/queries';
@@ -19,7 +19,35 @@ export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'log
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  // A visitor who is already signed in has no business on the
+  // login or signup form: pressing back after logging in should
+  // not show the form again. Send them to the page they were
+  // heading for, or to Dashboard. The submit flag stops this
+  // from firing for the sign-in the visitor just did here.
+  const submitted = useRef(false);
+  useEffect(() => {
+    const go = async () => {
+      if (submitted.current) return;
+      const u = await getCurrentUser();
+      if (!u) return;
+      const pendingPath = getPendingPath();
+      if (pendingPath) {
+        clearPendingPath();
+        clearPendingSlug();
+        router.replace(pendingPath);
+      } else {
+        router.replace('/dashboard');
+      }
+    };
+    go();
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) go();
+    });
+    return () => data.subscription.unsubscribe();
+  }, [router]);
+
   const submit = async () => {
+    submitted.current = true;
     setError('');
     if (!email.includes('@')) { setError('Please enter a valid email.'); return; }
     if (password.length < 6) { setError('Password needs at least 6 characters.'); return; }

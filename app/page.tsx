@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import FilterGrid from '@/components/FilterGrid';
 import ReviewsCarousel from '@/components/ReviewsCarousel';
 import CameraZoom from '@/components/scroll/CameraZoom';
@@ -27,7 +28,7 @@ export default async function Home() {
       <section id="featured-homes" className="mt-10 scroll-mt-24">
         <h2 className="text-2xl font-extrabold text-velvet">Featured homes</h2>
         <p className="mt-1 text-muted">Search by city and bedrooms. Tap a home to see its inspection fee and securing amount.</p>
-        <div className="mt-4"><FilterGrid properties={properties} /></div>
+        <div className="mt-4"><Suspense fallback={<p className="mt-6">Loading homes...</p>}><FilterGrid properties={properties} /></Suspense></div>
       </section>
 
       <section className="mt-12">
