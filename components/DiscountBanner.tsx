@@ -105,7 +105,7 @@ export default function DiscountBanner() {
       <div className="bg-velvet text-white">
         <div className={`mx-auto flex items-center justify-center gap-2 px-3 py-1.5 text-xs sm:gap-3 sm:px-6 sm:text-sm ${isAuthPage ? 'max-w-md' : 'max-w-6xl'}`}>
           <span className="hidden shrink-0 whitespace-nowrap font-extrabold sm:inline">Discount alert</span>
-          <span className="min-w-0 truncate">{DISCOUNT_PERCENT}% inspection discount for 7 days</span>
+          <Link href="/bookings" className="min-w-0 truncate hover:underline">{DISCOUNT_PERCENT}% inspection discount for 7 days</Link>
           <Link href="/signup" className="btn-press shrink-0 whitespace-nowrap rounded-full bg-strawberry px-3 py-1 text-xs font-bold text-white sm:px-4 sm:py-1.5 sm:text-sm">Claim and use</Link>
           <button type="button" onClick={() => { setBannerDismissed(userId); setDismissed(true); }} aria-label="Close discount banner" className="btn-press shrink-0 rounded-full px-1 py-1 text-base font-bold leading-none text-white/80 sm:px-2 sm:text-lg">×</button>
         </div>
@@ -140,12 +140,12 @@ export default function DiscountBanner() {
         {state.claimed ? (
           <>
             <span className="shrink-0 whitespace-nowrap rounded-full bg-strawberry px-2 py-1 text-xs font-extrabold sm:px-3">{DISCOUNT_PERCENT}% off active</span>
-            <span className="min-w-0 truncate font-bold">Inspection discount active, ends in {formatCountdown(state, now)}</span>
+            <Link href="/bookings" className="min-w-0 truncate font-bold hover:underline">Inspection discount active, ends in {formatCountdown(state, now)}</Link>
           </>
         ) : (
           <>
             <span className="hidden shrink-0 whitespace-nowrap font-extrabold sm:inline">Discount alert</span>
-            <span className="min-w-0 truncate">{DISCOUNT_PERCENT}% off inspections, ends in {formatCountdown(state, now)}</span>
+            <Link href="/bookings" className="min-w-0 truncate hover:underline">{DISCOUNT_PERCENT}% off inspections, ends in {formatCountdown(state, now)}</Link>
             <button type="button" onClick={() => { void claim(); }} disabled={claiming} className="btn-press flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-strawberry px-3 py-1 text-xs font-bold text-white disabled:opacity-60 sm:px-4 sm:py-1.5 sm:text-sm">{claiming && <Spinner className="h-3 w-3" />}Claim and use</button>
           </>
         )}
