@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { clearPendingPath, clearPendingSlug, ensureProfile, fetchBookings, getCurrentUser, getPendingPath, getPendingSlug, upsertBooking } from '@/lib/queries';
+import { checkEmailTaken } from '@/lib/email-check';
 import PasswordField from '@/components/PasswordField';
 import Spinner from '@/components/Spinner';
 import CountryCodePicker, { COUNTRY_CODES, type CountryCode } from '@/components/CountryCodePicker';
@@ -16,6 +17,7 @@ export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'log
   const [email, setEmail] = useState(initialEmail ?? '');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [emailExists, setEmailExists] = useState(false);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -49,6 +51,7 @@ export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'log
   const submit = async () => {
     submitted.current = true;
     setError('');
+    setEmailExists(false);
     if (!email.includes('@')) { setError('Please enter a valid email.'); return; }
     if (password.length < 6) { setError('Password needs at least 6 characters.'); return; }
     if (mode === 'signup' && !name.trim()) { setError('Please enter your full name.'); return; }
@@ -66,6 +69,21 @@ export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'log
           ? `+${digits}`
           : `+${country.code} ${digits}`;
       if (mode === 'signup') {
+        // One email, one account. Supabase on its own does not
+        // always stop a second signup: an account that never
+        // confirmed just gets a fresh confirmation email, so the
+        // visitor believes a second account was made. Check first
+        // and stop here with a clear message and a way to log in.
+        // If the check itself fails, signUp still runs below and
+        // its own "already registered" error is mapped the same
+        // way, so a broken check never blocks a new signup.
+        const check = await checkEmailTaken(email);
+        if (check.taken) {
+          setEmailExists(true);
+          setError('This email already has an account.');
+          setBusy(false);
+          return;
+        }
         const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
@@ -79,7 +97,16 @@ export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'log
             emailRedirectTo: `${window.location.origin}/login?email=${encodeURIComponent(email)}`,
           },
         });
-        if (signUpError) throw signUpError;
+        if (signUpError) {
+          // The account was made between the check and this call.
+          if (/already registered/i.test(signUpError.message)) {
+            setEmailExists(true);
+            setError('This email already has an account.');
+            setBusy(false);
+            return;
+          }
+          throw signUpError;
+        }
         if (!data.session) {
           setShowConfirmPopup(true);
           setBusy(false);
@@ -139,7 +166,16 @@ export default function AuthForm({ mode, initialEmail }: { mode: 'signup' | 'log
           <a href="/forgot-password" className="font-bold text-velvet">Forgot password?</a>
         </p>
       )}
-      {error && <p className="mt-3 text-sm font-bold text-strawberry">{error}</p>}
+      {error && (
+        <p className="mt-3 text-sm font-bold text-strawberry">
+          {error}{' '}
+          {emailExists && (
+            <>
+              <a href="/login" className="underline">Log in</a> or sign up with a different email.
+            </>
+          )}
+        </p>
+      )}
       <button onClick={submit} disabled={busy} className="btn-press mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-strawberry px-5 py-3 font-bold text-white disabled:opacity-60">
         {busy && <Spinner />}
         {mode === 'signup' ? 'Create account and continue' : 'Log in and continue'}
